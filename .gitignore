@@ -1,0 +1,11 @@
+/.gradle
+/.idea/*
+!/.idea/workspace.xml
+/build
+data.db
+*.log
+*.zip
+/latr
+/coef
+/conf
+temp.xlsx
