@@ -8,7 +8,7 @@ import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
 class DeviceStatesView : View("Состояние устройств") {
-    private var circlePR100: Circle by singleAssign()
+    private var circlePR: Circle by singleAssign()
     private var circleLATRController: Circle by singleAssign()
     private var circleAvemAmmeter0: Circle by singleAssign()
     private var circleAvemVoltmeter: Circle by singleAssign()
@@ -17,7 +17,7 @@ class DeviceStatesView : View("Состояние устройств") {
         thread {
             while (isDocked) {
                 CommunicationModel.checkDevices()
-                circlePR100.fill =
+                circlePR.fill =
                     if (CommunicationModel.getDeviceById(CommunicationModel.DeviceID.DD1).isResponding) c("green") else c(
                         "red"
                     )
@@ -52,11 +52,11 @@ class DeviceStatesView : View("Состояние устройств") {
 
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                circlePR100 = circle(radius = 8) {
+                circlePR = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("БСУ ПР100")
+                label("БСУ ПР200")
             }
 
             hbox(spacing = 16.0) {
@@ -65,7 +65,7 @@ class DeviceStatesView : View("Состояние устройств") {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Контроллер АРН")
+                label("Контроллер АРН-10-230(380)")
             }
 
             hbox(spacing = 16.0) {
@@ -74,7 +74,7 @@ class DeviceStatesView : View("Состояние устройств") {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("АВЭМ4-03")
+                label("АВЭМ-4-03")
             }
 
             hbox(spacing = 16.0) {
@@ -83,7 +83,7 @@ class DeviceStatesView : View("Состояние устройств") {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("АВЭМ-7 Испытательный канал - 1")
+                label("АВЭМ-7-5000")
             }
         }.addClass(Styles.regularLabels)
     }

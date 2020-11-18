@@ -1,7 +1,6 @@
 package ru.avem.pult.view
 
 import javafx.geometry.Insets
-import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.shape.Circle
 import javafx.scene.text.FontWeight
@@ -9,19 +8,17 @@ import ru.avem.pult.communication.model.CommunicationModel
 import ru.avem.pult.communication.model.devices.owen.pr.OwenPrModel
 import ru.avem.pult.communication.utils.toBoolean
 import ru.avem.pult.utils.getRange
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
 import tornadofx.*
 import kotlin.concurrent.thread
 
 class InputsStatesView : View("Состояние входов БСУ") {
-    private var connection1Relay: Circle by singleAssign()
-    private var connection2Relay: Circle by singleAssign()
-    private var connection3Relay: Circle by singleAssign()
-    private var connection4Relay: Circle by singleAssign()
-    private var bathDoor: Circle by singleAssign()
-    private var bathDoorSwitch: Circle by singleAssign()
-    private var buttonStartPump: Circle by singleAssign()
+    private var km1State: Circle by singleAssign()
+    private var km2State: Circle by singleAssign()
+    private var km3State: Circle by singleAssign()
+    private var doorState: Circle by singleAssign()
+    private var ka1State: Circle by singleAssign()
+    private var ka2State: Circle by singleAssign()
+    private var km5State: Circle by singleAssign()
 
     override fun onDock() {
         thread {
@@ -30,39 +27,39 @@ class InputsStatesView : View("Состояние входов БСУ") {
                 .getRegisterById(OwenPrModel.DI_01_16_RAW)
             while (isDocked) {
                 if (dd1.value.toInt().getRange(0).toBoolean()) {
-                    connection1Relay.fill = c("green")
+                    km1State.fill = c("green")
                 } else {
-                    connection1Relay.fill = c("red")
+                    km1State.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(1).toBoolean()) {
-                    connection2Relay.fill = c("green")
+                    km2State.fill = c("green")
                 } else {
-                    connection2Relay.fill = c("red")
+                    km2State.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(2).toBoolean()) {
-                    connection3Relay.fill = c("green")
+                    km3State.fill = c("green")
                 } else {
-                    connection3Relay.fill = c("red")
+                    km3State.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(3).toBoolean()) {
-                    connection4Relay.fill = c("green")
+                    doorState.fill = c("green")
                 } else {
-                    connection4Relay.fill = c("red")
+                    doorState.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(4).toBoolean()) {
-                    bathDoor.fill = c("green")
+                    ka1State.fill = c("green")
                 } else {
-                    bathDoor.fill = c("red")
+                    ka1State.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(5).toBoolean()) {
-                    bathDoorSwitch.fill = c("green")
+                    ka2State.fill = c("green")
                 } else {
-                    bathDoorSwitch.fill = c("red")
+                    ka2State.fill = c("red")
                 }
                 if (dd1.value.toInt().getRange(6).toBoolean()) {
-                    buttonStartPump.fill = c("green")
+                    km5State.fill = c("green")
                 } else {
-                    buttonStartPump.fill = c("red")
+                    km5State.fill = c("red")
                 }
             }
             CommunicationModel.removePollingRegister(CommunicationModel.DeviceID.DD1, OwenPrModel.DI_01_16_RAW)
@@ -74,66 +71,66 @@ class InputsStatesView : View("Состояние входов БСУ") {
             hboxConstraints {
                 margin = Insets(16.0, 16.0, 16.0, 16.0)
             }
-            label("Овен ПР-100 DD3") {
+            label("Овен ПР-200 DD1") {
                 style {
                     fontWeight = FontWeight.BOLD
                 }
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                connection1Relay = circle(radius = 8) {
+                km1State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Реле точки 1")
+                label("Контроль КМ1")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                connection2Relay = circle(radius = 8) {
+                km2State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Реле точки 2")
+                label("Контроль КМ2")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                connection3Relay = circle(radius = 8) {
+                km3State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Реле точки 3")
+                label("Контроль КМ3")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                connection4Relay = circle(radius = 8) {
+                doorState = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Реле точки 4")
+                label("Контроль двери")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                bathDoor = circle(radius = 8) {
+                ka1State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Люк модуля")
+                label("Контроль КА1")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                bathDoorSwitch = circle(radius = 8) {
+                ka2State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Концевик люка")
+                label("Контроль КА2")
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                buttonStartPump = circle(radius = 8) {
+                km5State = circle(radius = 8) {
                     isSmooth = true
                     stroke = c("black")
                 }
-                label("Кнопка Пуск насоса")
+                label("Контроль КМ5")
             }
         }.addClass(Styles.regularLabels)
     }
