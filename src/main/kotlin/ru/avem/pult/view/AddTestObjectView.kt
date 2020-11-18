@@ -2,20 +2,16 @@ package ru.avem.pult.view
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
-import javafx.event.EventHandler
 import javafx.scene.control.ComboBox
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.avem.pult.database.entities.TestObject
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.TestObjectAddViewModel
 import ru.avem.pult.viewmodels.MainViewModel
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_1
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_3
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.*
 
 class AddTestObjectView : View("Создание ОИ") {
@@ -30,8 +26,6 @@ class AddTestObjectView : View("Создание ОИ") {
 
     override fun onDock() {
         validationCtx.validate()
-        model.module.value = ""
-        model.transformer.value = ""
         model.amperage.value = .0
         model.test.value = ""
         model.name.value = ""
@@ -39,39 +33,11 @@ class AddTestObjectView : View("Создание ОИ") {
     }
 
     override val root = form {
-        setupTestObjectListeners()
-
         fieldset("Заполните поля") {
-            field("Модуль:") {
-                combobox<String> {
-                    useMaxWidth = true
-                    items = mainViewModel.modulesList
-                    validationCtx.addValidator(this, property = model.module) {
-                        if (it.isNullOrBlank()) error("Обязательное поле") else null
-                    }
-                    onAction = EventHandler {
-                        validationCtx.validate()
-                    }
-                }.bind(model.module)
-            }
-
-            field("Tрансформатор:") {
-                transformators = combobox<String> {
-                    useMaxWidth = true
-                    validationCtx.addValidator(this, property = model.transformer) {
-                        if (it.isNullOrBlank()) error("Обязательное поле") else null
-                    }
-
-                    onAction = EventHandler {
-                        validationCtx.validate()
-                    }
-                    bind(model.transformer)
-                }
-            }
-
             field("Испытание:") {
-                experiments = combobox<String> {
+                experiments = combobox {
                     useMaxWidth = true
+                    items = mainViewModel.testList
                     validationCtx.addValidator(this, property = model.test) {
                         if (it.isNullOrBlank()) error("Обязательное поле") else null
                     }
@@ -105,38 +71,23 @@ class AddTestObjectView : View("Создание ОИ") {
                         if (it.isNullOrBlank()) {
                             error("Обязательное поле")
                         } else {
-                            when (model.transformer.value) {
-                                TYPE_1_VOLTAGE.toString() -> {
+                            when (model.test.value) {
+                                TEST_1 -> {
                                     if ((0..TYPE_1_VOLTAGE).contains(it.toInt())) {
                                         null
                                     } else {
                                         error("Значение напряжения должно быть в диапазоне 0..$TYPE_1_VOLTAGE")
                                     }
                                 }
-                                TYPE_2_VOLTAGE.toString() -> {
+                                TEST_2 -> {
                                     if ((0..TYPE_2_VOLTAGE).contains(it.toInt())) {
-                                        if (model.test.value == TEST_1) {
-                                            if ((0..3000).contains(it.toInt())) {
-                                                null
-                                            } else {
-                                                error("Максимальное напряжение на $MODULE_1 с трансформатором $TYPE_2_VOLTAGE В = 3кВ")
-                                            }
-                                        } else {
-                                            null
-                                        }
+                                        null
                                     } else {
                                         error("Значение напряжения должно быть в диапазоне 0..$TYPE_2_VOLTAGE")
                                     }
                                 }
-                                TYPE_3_VOLTAGE.toString() -> {
-                                    if ((0..TYPE_3_VOLTAGE).contains(it.toInt())) {
-                                        null
-                                    } else {
-                                        error("Значение напряжения должно быть в диапазоне 0..$TYPE_3_VOLTAGE")
-                                    }
-                                }
                                 else -> {
-                                    error("Выберите трансформатор")
+                                    error("Выберите испытание")
                                 }
                             }
                         }
@@ -180,8 +131,17 @@ class AddTestObjectView : View("Создание ОИ") {
                                 objectVoltage = model.voltage.value.toString()
                                 objectAmperage = model.amperage.value.toString()
                                 objectTime = model.time.value.toString()
-                                objectModule = model.module.value
-                                objectTransformer = model.transformer.value
+                                objectTransformer = when (model.test.value) {
+                                    TEST_1 -> {
+                                        TYPE_1_VOLTAGE.toString()
+                                    }
+                                    TEST_2 -> {
+                                        TYPE_2_VOLTAGE.toString()
+                                    }
+                                    else -> {
+                                        TYPE_1_VOLTAGE.toString()
+                                    }
+                                }
                                 objectTest = model.test.value
                             }
                         }
@@ -198,9 +158,18 @@ class AddTestObjectView : View("Создание ОИ") {
                             TestObject.new {
                                 objectName = model.name.value
                                 objectAmperage = model.amperage.value.toString()
-                                objectModule = model.module.value
-                                objectTransformer = model.transformer.value
                                 objectTime = model.time.value.toString()
+                                objectTransformer = when (model.test.value) {
+                                    TEST_1 -> {
+                                        TYPE_1_VOLTAGE.toString()
+                                    }
+                                    TEST_2 -> {
+                                        TYPE_2_VOLTAGE.toString()
+                                    }
+                                    else -> {
+                                        TYPE_1_VOLTAGE.toString()
+                                    }
+                                }
                                 objectVoltage = model.voltage.value.toString()
                                 objectTest = model.test.value
                             }
@@ -211,52 +180,5 @@ class AddTestObjectView : View("Создание ОИ") {
                 }
             }.visibleWhen(validationCtx.valid)
         }.addClass(Styles.regularLabels)
-    }
-
-    private fun setupTestObjectListeners() {
-        model.module.onChange {
-            when (it) {
-                MODULE_1 -> {
-                    experiments.items = mainViewModel.firstModuleTestsList
-                    transformators.items = mainViewModel.firstModuleTransformators
-                }
-                MODULE_2 -> {
-                    experiments.items = mainViewModel.secondModuleTestsList
-                    transformators.items = mainViewModel.secondModuleTransformators
-                }
-                MODULE_3 -> {
-                    experiments.items = mainViewModel.thirdModuleTestsList
-                    transformators.items = mainViewModel.thirdModuleTransformators
-                }
-            }
-        }
-
-        model.transformer.onChange {
-            when (model.module.value) {
-                MODULE_1 -> {
-                    when (it) {
-                        TYPE_1_VOLTAGE.toString() -> {
-                            experiments.items = mainViewModel.firstModuleTestsList200V
-                        }
-                        TYPE_2_VOLTAGE.toString() -> {
-                            experiments.items = mainViewModel.firstModuleTestsList20kV
-                        }
-                    }
-                }
-                MODULE_2 -> {
-                    when (it) {
-                        TYPE_2_VOLTAGE.toString() -> {
-                            experiments.items = mainViewModel.secondModuleTestsList20kV
-                        }
-                        TYPE_3_VOLTAGE.toString() -> {
-                            experiments.items = mainViewModel.secondModuleTestsList50kV
-                        }
-                    }
-                }
-                MODULE_3 -> {
-                    experiments.items = mainViewModel.thirdModuleTestsList
-                }
-            }
-        }
     }
 }

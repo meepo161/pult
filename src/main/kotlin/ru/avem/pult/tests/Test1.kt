@@ -9,7 +9,6 @@ import ru.avem.pult.utils.LogTag
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.MainViewModel
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.seconds
 import java.lang.Thread.sleep
 
@@ -22,65 +21,47 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
         isTestRunning = true
         switchExperimentButtonsState()
 
-        if (controller.owenPrDD2.isDoorOpened()) {
+        if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (controller.owenPrDD2.isTotalAmperageProtectionTriggered()) {
+        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
             cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
         }
-        if (!controller.owenPrDD3.isBathDoorClosed()) {
+        if (!controller.owenPrDevice.isBathDoorClosed()) {
             cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
         }
 
         if (isTestRunning && isDevicesResponding()) {
             waitForUserStart()
             if (isTestRunning) {
-                controller.owenPrDD2.onLightSign()
+                controller.owenPrDevice.onLightSign()
                 if (model.testObject.value.objectVoltage.toInt() >= 1000) {
-                    controller.owenPrDD2.turnOnLampMore1000()
+                    controller.owenPrDevice.turnOnLampMore1000()
                 } else {
-                    controller.owenPrDD2.turnOnLampLess1000()
+                    controller.owenPrDevice.turnOnLampLess1000()
                 }
             }
 
             when (model.testObject.value.objectTransformer) {
                 TYPE_2_VOLTAGE.toString() -> {
                     if (isTestRunning && isDevicesResponding()) {
-                        controller.owenPrDD2.onSoundAlarm()
+                        controller.owenPrDevice.onSoundAlarm()
                         sleep(3000)
-                        controller.owenPrDD2.offSoundAlarm()
-                        controller.owenPrDD3.togglePowerSupplyMode()
-                        controller.owenPrDD2.onShortlocker20kV()
+                        controller.owenPrDevice.offSoundAlarm()
+                        controller.owenPrDevice.togglePowerSupplyMode()
+                        controller.owenPrDevice.onShortlocker20kV()
                         sleep(1000)
-                        if (!controller.owenPrDD2.is20kVshortlockerSwitched()) {
+                        if (!controller.owenPrDevice.is20kVshortlockerSwitched()) {
                             cause = CauseDescriptor.SHORTLOCKER_NOT_WORKING_20KV
                         }
                         if (model.testObject.value.objectVoltage.toInt() > 3000) {
-                            controller.owenPrDD2.offStepDownTransformer()
+                            controller.owenPrDevice.offStepDownTransformer()
                             isUsingAccurate = false
                         }
-                        controller.owenPrDD2.onTransformer20kV()
+                        controller.owenPrDevice.onTransformer20kV()
                         sleep(1000)
-                        if (!controller.owenPrDD2.is20kVcontactorSwitched()) {
+                        if (!controller.owenPrDevice.is20kVcontactorSwitched()) {
                             cause = CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_20KV
-                        }
-                    }
-                }
-                TYPE_3_VOLTAGE.toString() -> {
-                    if (isTestRunning && isDevicesResponding()) {
-                        controller.owenPrDD2.onSoundAlarm()
-                        sleep(3000)
-                        controller.owenPrDD2.offSoundAlarm()
-                        controller.owenPrDD2.onShortlocker50kV()
-                        sleep(1000)
-                        if (model.testObject.value.objectVoltage.toInt() > 6000) {
-                            controller.owenPrDD2.offStepDownTransformer()
-                            isUsingAccurate = false
-                        }
-                        controller.owenPrDD2.onTransformer50kV()
-                        sleep(1000)
-                        if (!controller.owenPrDD2.is50kVcontactorSwitched()) {
-                            cause = CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_50KV
                         }
                     }
                 }
@@ -89,7 +70,7 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
 
         checkProtections()
 
-        if (isTestRunning && model.manualVoltageRegulation.value) {
+        if (isTestRunning && model.isManualVoltageRegulation.value) {
             view.appendMessageToLog(LogTag.MESSAGE, "Запуск АРН в режиме ручного регулирования напряжения")
             controller.latrDevice.startManual(
                 (model.testObject.value.objectVoltage.toFloat() * if (isUsingAccurate) 7.3f else 1f) / controller.ktrSettable
@@ -99,7 +80,7 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                 if (!isTestRunning) {
                     it.stop()
                 }
-                if (controller.owenPrDD2.isTimerStartPressed()) {
+                if (controller.owenPrDevice.isTimerStartPressed()) {
                     it.stop()
                 }
             }, onFinishJob = {
@@ -162,7 +143,7 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
             val timer =
                 CallbackTimer(tickPeriod = 1.seconds, tickTimes = model.testObject.value.objectTime.toInt(),
                     onStartJob = {
-                        controller.owenPrDD2.onTimer()
+                        controller.owenPrDevice.onTimer()
                     },
                     tickJob = {
                         if (isTestRunning) {
@@ -173,11 +154,11 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                         }
                     })
 
-            while (timer.isRunning && !controller.owenPrDD2.isTimerStopPressed()) {
+            while (timer.isRunning && !controller.owenPrDevice.isTimerStopPressed()) {
                 checkProtections()
             }
         }
-        controller.owenPrDD2.offTimer()
+        controller.owenPrDevice.offTimer()
         if (cause != CauseDescriptor.CANCELED) {
             markChannel()
             cause = when {
@@ -192,26 +173,26 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun checkProtections() {
-        if (controller.owenPrDD2.isTotalAmperageProtectionTriggered()) {
+        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
             cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
         }
-        if (controller.owenPrDD2.isGeneralAmmeterRelayTriggered()) {
-            controller.owenPrDD2.offButtonPostPower()
+        if (controller.owenPrDevice.isGeneralAmmeterRelayTriggered()) {
+            controller.owenPrDevice.offButtonPostPower()
             cause = CauseDescriptor.GENERAL_AMMETER_RELAY
         }
         if (!isDevicesResponding()) {
             cause = CauseDescriptor.DEVICES_NOT_RESPONDING
         }
-        if (controller.owenPrDD2.isDoorOpened()) {
+        if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (!controller.owenPrDD3.isBathDoorClosed()) {
+        if (!controller.owenPrDevice.isBathDoorClosed()) {
             cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
         }
-        if (!controller.owenPrDD2.isHiSwitchTurned()) {
+        if (!controller.owenPrDevice.isHiSwitchTurned()) {
             cause = CauseDescriptor.HI_POWER_SWITCH_LOCKED
         }
-        if (controller.owenPrDD2.isStopPressed()) {
+        if (controller.owenPrDevice.isStopPressed()) {
             cause = CauseDescriptor.CANCELED
         }
         if (controller.isLatrInErrorMode()) {
@@ -220,8 +201,8 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun markChannel() {
-        if (controller.owenPrDD3.isBathChannelTriggered1() ||
-            controller.ammeterDeviceP2.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() ||
+        if (controller.owenPrDevice.isBathChannelTriggered1() ||
+            controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() ||
             cause != CauseDescriptor.EMPTY
         ) {
             controller.tableValues[0].result.value = "Провал"
@@ -231,15 +212,15 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun isChannelBad(): Boolean {
-        return controller.ammeterDeviceP2.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat()
+        return controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat()
     }
 
     private fun isDevicesResponding() =
-        controller.owenPrDD2.isResponding && controller.ammeterDeviceP2.isResponding && controller.latrDevice.isResponding && controller.voltmeterDevice.isResponding
+        controller.owenPrDevice.isResponding && controller.ammeterDevice.isResponding && controller.latrDevice.isResponding && controller.voltmeterDevice.isResponding
 
     override fun getNotRespondingMessageFromTest() =
-        if (controller.owenPrDD2.isResponding) "" else "Owen PR (DD2)" +
-                if (controller.ammeterDeviceP2.isResponding) "" else ", Ammeter (P2)" +
+        if (controller.owenPrDevice.isResponding) "" else "Owen PR (DD2)" +
+                if (controller.ammeterDevice.isResponding) "" else ", Ammeter (P2)" +
                         if (controller.latrDevice.isResponding) "" else ", ATR (GV240)" +
                                 if (controller.voltmeterDevice.isResponding) "" else ", Voltmeter (PV21)"
 }

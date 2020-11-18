@@ -6,6 +6,7 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
+        val warningDecorator by cssclass()
         val regularLabels by cssclass()
         val headerLabels by cssclass()
         val testHeaderLabels by cssclass()
@@ -17,6 +18,21 @@ class Styles : Stylesheet() {
     }
 
     init {
+        warningDecorator {
+            borderColor += CssBox(
+                top = c("orange"),
+                bottom = c("orange"),
+                left = c("orange"),
+                right = c("orange"),
+            )
+            borderWidth += CssBox(
+                top = 3.px,
+                bottom = 3.px,
+                left = 3.px,
+                right = 3.px,
+            )
+        }
+
         tableRowCell {
             text {
                 fontSize = 20.px

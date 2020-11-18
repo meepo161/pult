@@ -12,10 +12,8 @@ import ru.avem.pult.viewmodels.CoefficientSettingsFragmentModel
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_1_FRAGMENT
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_2_FRAGMENT
-import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_3_FRAGMENT
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.*
 import tornadofx.controlsfx.errorNotification
 import java.io.File
@@ -87,9 +85,6 @@ class CoefficientsSettingsView : View("Настройки измерений") {
             }
             tab("$TYPE_2_VOLTAGE В") {
                 content = model.fragments.getValue(MODULE_2_FRAGMENT).root
-            }
-            tab("$TYPE_3_VOLTAGE В") {
-                content = model.fragments.getValue(MODULE_3_FRAGMENT).root
             }
         }.addClass(Styles.regularLabels)
     }

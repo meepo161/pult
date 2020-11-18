@@ -10,7 +10,6 @@ import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
-import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import ru.avem.pult.controllers.TestController
@@ -19,7 +18,6 @@ import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.viewmodels.MainViewModel
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_7
 import tornadofx.*
 import java.text.SimpleDateFormat
 
@@ -32,12 +30,10 @@ class TestView : View() {
     private val mainViewModel: MainViewModel by inject()
 
     var vBoxLog: VBox by singleAssign()
-    var circleComStatus: Circle by singleAssign()
     var buttonBack: Button by singleAssign()
     var buttonTestStart: Button by singleAssign()
     var buttonTestStop: Button by singleAssign()
     var buttonFixLighting: Button by singleAssign()
-    var buttonOpenBathDoor: Button by singleAssign()
     var progressBarTime: ProgressBar by singleAssign()
     var labelExperimentName: Label by singleAssign()
 
@@ -166,10 +162,7 @@ class TestView : View() {
                         isDisable = true
                         controller.isLightingFixed = true
                     }
-                }.removeWhen(
-                    mainViewModel.test.isNotEqualTo(TEST_2) and
-                            mainViewModel.test.isNotEqualTo(TEST_7)
-                )
+                }.removeWhen(mainViewModel.test.isNotEqualTo(TEST_2))
 
                 button("Разблок. люк") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.UNLOCK).apply {
@@ -225,23 +218,6 @@ class TestView : View() {
         }
 
         bottom = anchorpane {
-//            label("Связь:") {
-//                anchorpaneConstraints {
-//                    leftAnchor = 16.0
-//                    topAnchor = 4.0
-//                    bottomAnchor = 4.0
-//                }
-//            }
-//
-//            circleComStatus = circle(radius = 8.0) {
-//                anchorpaneConstraints {
-//                    leftAnchor = 70.0
-//                    topAnchor = 9.0
-//                    bottomAnchor = 2.0
-//                }
-//
-//                stroke = c("black")
-//            }
 
             label("Прогресс испытания:") {
                 anchorpaneConstraints {

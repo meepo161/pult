@@ -16,41 +16,41 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
         isTestRunning = true
         switchExperimentButtonsState()
 
-        if (!controller.owenPrDD3.isBathDoorClosed()) {
+        if (!controller.owenPrDevice.isBathDoorClosed()) {
             cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
         }
-        if (controller.owenPrDD2.isDoorOpened()) {
+        if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (controller.owenPrDD2.isTotalAmperageProtectionTriggered()) {
+        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
             cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
         }
 
         if (isTestRunning && isDevicesResponding()) {
             waitForUserStart()
             if (isTestRunning && isDevicesResponding()) {
-                controller.owenPrDD2.turnOnLampLess1000()
-                controller.owenPrDD2.onLightSign()
-                controller.owenPrDD2.offStepDownTransformer()
-                controller.owenPrDD2.onSoundAlarm()
+                controller.owenPrDevice.turnOnLampLess1000()
+                controller.owenPrDevice.onLightSign()
+                controller.owenPrDevice.offStepDownTransformer()
+                controller.owenPrDevice.onSoundAlarm()
                 sleep(3000)
-                controller.owenPrDD2.offSoundAlarm()
-                controller.owenPrDD3.togglePowerSupplyMode()
-                controller.owenPrDD2.onShortlocker20kV()
+                controller.owenPrDevice.offSoundAlarm()
+                controller.owenPrDevice.togglePowerSupplyMode()
+                controller.owenPrDevice.onShortlocker20kV()
                 sleep(1000)
-                if (!controller.owenPrDD2.is20kVshortlockerSwitched()) {
+                if (!controller.owenPrDevice.is20kVshortlockerSwitched()) {
                     cause = CauseDescriptor.SHORTLOCKER_NOT_WORKING_20KV
                 }
-                controller.owenPrDD2.onTransformer200V()
+                controller.owenPrDevice.onTransformer200V()
                 sleep(1000)
-                if (!controller.owenPrDD2.is200VcontactorSwitched()) {
+                if (!controller.owenPrDevice.is200VcontactorSwitched()) {
                     cause = CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_200V
                 }
             }
 
             checkProtections()
 
-            if (isTestRunning && model.manualVoltageRegulation.value) {
+            if (isTestRunning && model.isManualVoltageRegulation.value) {
                 view.appendMessageToLog(LogTag.MESSAGE, "Запуск АРН в режиме ручного регулирования напряжения")
                 controller.latrDevice.startManual(model.testObject.value.objectVoltage.toFloat())
 
@@ -116,25 +116,25 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun checkProtections() {
-        if (controller.owenPrDD2.isTotalAmperageProtectionTriggered()) {
+        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
             cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
         }
         if (!isDevicesResponding()) {
             cause = CauseDescriptor.DEVICES_NOT_RESPONDING
         }
-        if (controller.owenPrDD2.isGeneralAmmeterRelayTriggered()) {
+        if (controller.owenPrDevice.isGeneralAmmeterRelayTriggered()) {
             cause = CauseDescriptor.GENERAL_AMMETER_RELAY
         }
-        if (controller.owenPrDD2.isDoorOpened()) {
+        if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (!controller.owenPrDD3.isBathDoorClosed()) {
+        if (!controller.owenPrDevice.isBathDoorClosed()) {
             cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
         }
-        if (!controller.owenPrDD2.isHiSwitchTurned()) {
+        if (!controller.owenPrDevice.isHiSwitchTurned()) {
             cause = CauseDescriptor.HI_POWER_SWITCH_LOCKED
         }
-        if (controller.owenPrDD2.isStopPressed()) {
+        if (controller.owenPrDevice.isStopPressed()) {
             cause = CauseDescriptor.CANCELED
         }
         if (controller.isLatrInErrorMode()) {
@@ -143,11 +143,11 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun isDevicesResponding() =
-        controller.owenPrDD2.isResponding && controller.ammeterDeviceP2.isResponding && controller.latrDevice.isResponding && controller.voltmeterDevice.isResponding
+        controller.owenPrDevice.isResponding && controller.ammeterDevice.isResponding && controller.latrDevice.isResponding && controller.voltmeterDevice.isResponding
 
     override fun getNotRespondingMessageFromTest() =
-        if (controller.owenPrDD2.isResponding) "" else "Owen PR (DD2)" +
-                if (controller.ammeterDeviceP2.isResponding) "" else ", Ammeter (P2)" +
+        if (controller.owenPrDevice.isResponding) "" else "Owen PR (DD2)" +
+                if (controller.ammeterDevice.isResponding) "" else ", Ammeter (P2)" +
                         if (controller.latrDevice.isResponding) "" else ", ATR (GV240)" +
                                 if (controller.voltmeterDevice.isResponding) "" else ", Voltmeter (PV21)"
 }

@@ -15,13 +15,8 @@ object CommunicationModel {
     @Suppress("UNUSED_PARAMETER")
     enum class DeviceID(description: String) {
         PV21("Напряжение на ОИ"),
-        P11("Общий ток утечки"),
-        P12("Ток утечки 1"),
-        P13("Ток утечки 2"),
-        P14("Ток утечки 3"),
-        P15("Ток утечки 4"),
-        DD2("ПР102"),
-        DD3("ПР200"),
+        PA11("Ток утечки"),
+        DD1("ПР200"),
         GV240("АРН")
     }
 
@@ -41,14 +36,9 @@ object CommunicationModel {
     private val adapter = ModbusRTUAdapter(connection)
 
     private val deviceControllers: Map<DeviceID, IDeviceController> = mapOf(
-        DeviceID.DD2 to OwenPrController(DeviceID.DD2.toString(), adapter, 2),
-        DeviceID.DD3 to OwenPrController(DeviceID.DD3.toString(), adapter, 3),
+        DeviceID.DD1 to OwenPrController(DeviceID.DD1.toString(), adapter, 3),
         DeviceID.PV21 to Avem4Controller(DeviceID.PV21.toString(), adapter, 21),
-        DeviceID.P11 to Avem7Controller(DeviceID.P11.toString(), adapter, 11),
-        DeviceID.P12 to Avem7Controller(DeviceID.P12.toString(), adapter, 12),
-        DeviceID.P13 to Avem7Controller(DeviceID.P13.toString(), adapter, 13),
-        DeviceID.P14 to Avem7Controller(DeviceID.P14.toString(), adapter, 14),
-        DeviceID.P15 to Avem7Controller(DeviceID.P15.toString(), adapter, 15),
+        DeviceID.PA11 to Avem7Controller(DeviceID.PA11.toString(), adapter, 12),
         DeviceID.GV240 to AvemLatrController(DeviceID.GV240.toString(), adapter, 240.toByte())
     )
 
