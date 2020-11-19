@@ -110,10 +110,22 @@ class TestController : Controller() {
             it.measuredAmperage.value = ""
             it.measuredVoltage.value = ""
         }
+        impulseTableValues.forEach {
+            it.specifiedVoltage.value = ""
+            it.specifiedAmperage.value = ""
+            it.testTime.value = ""
+            it.ktr.value = ""
+            it.result.value = ""
+            it.measuredAmperage.value = ""
+            it.measuredVoltage.value = ""
+        }
     }
 
     fun clearTableResults() {
         tableValues.forEach {
+            it.result.value = ""
+        }
+        impulseTableValues.forEach {
             it.result.value = ""
         }
     }
@@ -124,6 +136,11 @@ class TestController : Controller() {
         tableValues[0].specifiedAmperage.value = model.testObject.value.objectAmperage
         tableValues[0].testTime.value = model.testObject.value.objectTime
         tableValues[0].ktr.value = fillKtrCell()
+
+        impulseTableValues[0].specifiedVoltage.value = model.testObject.value.objectVoltage
+        impulseTableValues[0].specifiedAmperage.value = model.testObject.value.objectAmperage
+        impulseTableValues[0].testTime.value = model.testObject.value.objectTime
+        impulseTableValues[0].ktr.value = fillKtrCell()
     }
 
     private fun fillKtrCell(): String? {
@@ -291,13 +308,6 @@ class TestController : Controller() {
         owenPrDevice.offTransformer20kV()
         owenPrDevice.offSoundAlarm()
         owenPrDevice.offShortlocker20kV()
-        owenPrDevice.offButtonPostPower()
-    }
-
-    fun disassembleType3Scheme() {
-        owenPrDevice.offTransformer50kV()
-        owenPrDevice.offSoundAlarm()
-        owenPrDevice.offShortlocker50kV()
         owenPrDevice.offButtonPostPower()
     }
 }

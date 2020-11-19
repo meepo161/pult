@@ -214,10 +214,8 @@ abstract class Test(
         runLater {
             if (isTestRunning) {
                 view.buttonBack.disableProperty().set(true)
-                view.buttonFixLighting.isDisable = false
             } else {
                 view.buttonBack.disableProperty().set(false)
-                view.buttonFixLighting.isDisable = true
             }
         }
     }

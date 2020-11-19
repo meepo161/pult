@@ -37,7 +37,6 @@ class TestView : View() {
     var buttonBack: Button by singleAssign()
     var buttonTestStart: Button by singleAssign()
     var buttonTestStop: Button by singleAssign()
-    var buttonFixLighting: Button by singleAssign()
     var progressBarTime: ProgressBar by singleAssign()
     var labelExperimentName: Label by singleAssign()
 
@@ -81,9 +80,8 @@ class TestView : View() {
                     column("Uизм ОИ, В", ImpulseTableValues::measuredVoltage.getter)
                     column("Iут. зад., мА", ImpulseTableValues::specifiedAmperage.getter)
                     column("Iут. изм., мА", ImpulseTableValues::measuredAmperage.getter)
-                    column("Дат1, мА", ImpulseTableValues::measuredAmperage.getter)
-                    column("Дат2, мА", ImpulseTableValues::measuredAmperage.getter)
-                    column("Iут. изм., мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Дат1, мА", ImpulseTableValues::dat1.getter)
+                    column("Дат2, мА", ImpulseTableValues::dat2.getter)
                     column("Время, с", ImpulseTableValues::testTime.getter)
                     column("Результат", ImpulseTableValues::result.getter)
                 }
@@ -139,7 +137,7 @@ class TestView : View() {
             }
 
             tableContainer = hbox {
-
+                //Пустой контейнер, сюда попадет таблица из onDock()
             }
 
             hbox(spacing = 130.0) {
@@ -193,37 +191,6 @@ class TestView : View() {
                         controller.stopTest()
                     }
                 }
-
-                buttonFixLighting = button("Зафиксировать") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.WRENCH).apply {
-                        glyphSize = 35.0
-                        fill = c("#039dfc")
-                    }
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
-                    isDisable = true
-                    action {
-                        buttonTestStart.isDisable = true
-                        buttonTestStop.isDisable = true
-                        isDisable = true
-                        controller.isLightingFixed = true
-                    }
-                }.removeWhen(mainViewModel.test.isNotEqualTo(TEST_2))
-
-                button("Разблок. люк") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.UNLOCK).apply {
-                        glyphSize = 35.0
-                        fill = c("red")
-                    }
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
-                    isDisable = true
-                    action {
-                        //todo Кнопка нужна в испытаниях с ванной
-                    }
-                }.removeFromParent()
             }
         }
     }
