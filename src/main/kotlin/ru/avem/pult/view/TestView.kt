@@ -9,14 +9,18 @@ import javafx.event.EventHandler
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import ru.avem.pult.controllers.TestController
+import ru.avem.pult.entities.ImpulseTableValues
 import ru.avem.pult.entities.TableValues
 import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.viewmodels.MainViewModel
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import tornadofx.*
 import java.text.SimpleDateFormat
@@ -37,9 +41,62 @@ class TestView : View() {
     var progressBarTime: ProgressBar by singleAssign()
     var labelExperimentName: Label by singleAssign()
 
+    var tableContainer: HBox by singleAssign()
+
     var logBuffer: String? = null
 
     override fun onDock() {
+        when (mainViewModel.test.value) {
+            TEST_1 -> {
+                tableview(controller.tableValues) {
+                    hboxConstraints {
+                        hGrow = Priority.ALWAYS
+                    }
+                    prefHeight = 235.0
+                    columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+                    isMouseTransparent = true
+
+                    column("Объекты", TableValues::connection.getter)
+                    column("Uзад ОИ, В", TableValues::specifiedVoltage.getter)
+                    column("КТР", TableValues::ktr.getter)
+                    column("Uизм ОИ, В", TableValues::measuredVoltage.getter)
+                    column("Iут. зад. мА", TableValues::specifiedAmperage.getter)
+                    column("Iут. изм. мА", TableValues::measuredAmperage.getter)
+                    column("Время, с", TableValues::testTime.getter)
+                    column("Результат", TableValues::result.getter)
+                }
+            }
+            TEST_2 -> {
+                tableview(controller.impulseTableValues) {
+                    hboxConstraints {
+                        hGrow = Priority.ALWAYS
+                    }
+                    prefHeight = 235.0
+                    columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+                    isMouseTransparent = true
+
+                    column("Объекты", ImpulseTableValues::connection.getter)
+                    column("Uзад ОИ, В", ImpulseTableValues::specifiedVoltage.getter)
+                    column("КТР", ImpulseTableValues::ktr.getter)
+                    column("Uизм ОИ, В", ImpulseTableValues::measuredVoltage.getter)
+                    column("Iут. зад., мА", ImpulseTableValues::specifiedAmperage.getter)
+                    column("Iут. изм., мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Дат1, мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Дат2, мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Iут. изм., мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Время, с", ImpulseTableValues::testTime.getter)
+                    column("Результат", ImpulseTableValues::result.getter)
+                }
+            }
+            else -> {
+                null
+            }
+        }?.let {
+            tableContainer.replaceChildren(
+                it
+            )
+        }
+
         title = mainViewModel.test.value
         setExperimentProgress(0)
         controller.clearTable()
@@ -80,19 +137,9 @@ class TestView : View() {
                 rightAnchor = 16.0
                 topAnchor = 120.0
             }
-            tableview(controller.tableValues) {
-                prefHeight = 235.0
-                columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
-                isMouseTransparent = true
 
-                column("Объекты", TableValues::connection.getter)
-                column("Uзад ОИ, В", TableValues::specifiedVoltage.getter)
-                column("КТР", TableValues::ktr.getter)
-                column("Uизм ОИ, В", TableValues::measuredVoltage.getter)
-                column("Iут. зад. мА", TableValues::specifiedAmperage.getter)
-                column("Iут. изм. мА", TableValues::measuredAmperage.getter)
-                column("Время, с", TableValues::testTime.getter)
-                column("Результат", TableValues::result.getter)
+            tableContainer = hbox {
+
             }
 
             hbox(spacing = 130.0) {

@@ -16,6 +16,7 @@ import ru.avem.pult.communication.model.devices.avem.latr.AvemLatrModel
 import ru.avem.pult.communication.model.devices.owen.pr.OwenPrController
 import ru.avem.pult.communication.model.devices.owen.pr.OwenPrModel
 import ru.avem.pult.communication.utils.autoformat
+import ru.avem.pult.entities.ImpulseTableValues
 import ru.avem.pult.entities.LatrControllerConfiguration
 import ru.avem.pult.entities.TableValues
 import ru.avem.pult.tests.GeneralTest
@@ -77,34 +78,18 @@ class TestController : Controller() {
             measuredAmperage = SimpleStringProperty(),
             testTime = SimpleStringProperty(),
             result = SimpleStringProperty()
-        ),
-        TableValues(
-            connection = SimpleStringProperty("Объект 2"),
+        )
+    )
+    var impulseTableValues = observableList(
+        ImpulseTableValues(
+            connection = SimpleStringProperty("Объект 1"),
             specifiedVoltage = SimpleStringProperty(),
             ktr = SimpleStringProperty(),
             measuredVoltage = SimpleStringProperty(),
             specifiedAmperage = SimpleStringProperty(),
             measuredAmperage = SimpleStringProperty(),
-            testTime = SimpleStringProperty(),
-            result = SimpleStringProperty()
-        ),
-        TableValues(
-            connection = SimpleStringProperty("Объект 3"),
-            specifiedVoltage = SimpleStringProperty(),
-            ktr = SimpleStringProperty(),
-            measuredVoltage = SimpleStringProperty(),
-            specifiedAmperage = SimpleStringProperty(),
-            measuredAmperage = SimpleStringProperty(),
-            testTime = SimpleStringProperty(),
-            result = SimpleStringProperty()
-        ),
-        TableValues(
-            connection = SimpleStringProperty("Объект 4"),
-            specifiedVoltage = SimpleStringProperty(),
-            ktr = SimpleStringProperty(),
-            measuredVoltage = SimpleStringProperty(),
-            specifiedAmperage = SimpleStringProperty(),
-            measuredAmperage = SimpleStringProperty(),
+            dat1 = SimpleStringProperty(),
+            dat2 = SimpleStringProperty(),
             testTime = SimpleStringProperty(),
             result = SimpleStringProperty()
         )
