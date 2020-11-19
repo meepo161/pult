@@ -5,15 +5,20 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.event.ActionEvent
 import javafx.event.EventType
 import javafx.geometry.Pos
+import javafx.geometry.Side
 import javafx.scene.control.TabPane
+import javafx.scene.layout.Priority
 import javafx.stage.WindowEvent
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.CoefficientSettingsFragmentModel
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_1_FRAGMENT
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_2_FRAGMENT
+import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.SIMPLE_FRAGMENT_1
+import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.SIMPLE_FRAGMENT_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
+import ru.avem.pult.viewmodels.SimpleTwoFieldFormModel
 import tornadofx.*
 import tornadofx.controlsfx.errorNotification
 import java.io.File
@@ -54,18 +59,25 @@ class CoefficientsSettingsView : View("Настройки измерений") {
                 }
                 action {
                     if (model.isDataValid) {
-                        val ctx = JAXBContext.newInstance(CoefficientSettingsFragmentModel::class.java)
-                        val marshaller = ctx.createMarshaller()
+                        var ctx = JAXBContext.newInstance(CoefficientSettingsFragmentModel::class.java)
+                        var marshaller = ctx.createMarshaller()
                         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
                         with(File("coef")) {
                             if (this.isDirectory) {
-                                model.fragments.forEach { (t, u) ->
+                                model.voltmeterFragments.forEach { (t, u) ->
                                     marshaller.marshal(u.model, File("coef/$t.xml"))
                                 }
                             } else {
                                 this.mkdir()
                                 this@button.onAction.handle(ActionEvent())
                             }
+                        }
+
+                        ctx = JAXBContext.newInstance(SimpleTwoFieldFormModel::class.java)
+                        marshaller = ctx.createMarshaller()
+                        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+                        model.simpleFragments.forEach { (t, u) ->
+                            marshaller.marshal(u.model, File("coef/$t.xml"))
                         }
                     } else {
                         errorNotification(
@@ -79,17 +91,35 @@ class CoefficientsSettingsView : View("Настройки измерений") {
         }
 
         tabpane {
+            vboxConstraints {
+                vGrow = Priority.ALWAYS
+            }
+            side = Side.LEFT
             tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-            tab("$TYPE_1_VOLTAGE В") {
-                content = model.fragments.getValue(MODULE_1_FRAGMENT).root
-            }
-            tab("$TYPE_2_VOLTAGE В") {
-                content = model.fragments.getValue(MODULE_2_FRAGMENT).root
-            }
-        }.addClass(Styles.regularLabels)
-    }
 
-    class FormFragment : Fragment() {
+            tab("АВЭМ-4") {
+                tabpane {
+                    tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+                    tab("$TYPE_1_VOLTAGE В") {
+                        content = model.voltmeterFragments.getValue(MODULE_1_FRAGMENT).root
+                    }
+                    tab("$TYPE_2_VOLTAGE В") {
+                        content = model.voltmeterFragments.getValue(MODULE_2_FRAGMENT).root
+                    }
+                }
+            }
+
+            tab("АВЭМ-7") {
+                content = model.simpleFragments.getValue(SIMPLE_FRAGMENT_1).root
+            }
+
+            tab("ПР200") {
+                content = model.simpleFragments.getValue(SIMPLE_FRAGMENT_2).root
+            }
+        }
+    }.addClass(Styles.regularLabels)
+
+    class VoltmeterFormFragment : Fragment() {
         val model = CoefficientSettingsFragmentModel()
         override val root = form {
             fieldset("Коэффициенты") {
@@ -131,5 +161,38 @@ class CoefficientsSettingsView : View("Настройки измерений") {
                 }
             }
         }
+    }
+
+    class SimpleTwoFieldFormFragment(var description0: String, var description1: String) : Fragment() {
+        val model = SimpleTwoFieldFormModel()
+        override val root = form {
+            fieldset {
+                field(description0) {
+                    textfield {
+                        callKeyBoard()
+                        stripNonNumeric(".")
+                        filterInput {
+                            it.controlNewText.length <= 6
+                        }
+                        model.validationCtx.addValidator(this) {
+                            if (it.isNullOrBlank()) error("Обязательное поле") else null
+                        }
+                    }.bind(model.firstValue)
+                }
+                field(description1) {
+                    textfield {
+                        callKeyBoard()
+                        stripNonNumeric(".")
+                        filterInput {
+                            it.controlNewText.length <= 6
+                        }
+                        model.validationCtx.addValidator(this) {
+                            if (it.isNullOrBlank()) error("Обязательное поле") else null
+                        }
+                    }.bind(model.secondValue)
+                }
+            }
+        }
+
     }
 }

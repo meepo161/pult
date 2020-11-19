@@ -132,12 +132,12 @@ class TestController : Controller() {
     private fun fillKtrCell(): String? {
         return when {
             model.testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
-                with(model.coefficientsSettingsModel.fragments[MODULE_1_FRAGMENT]?.model) {
+                with(model.coefficientsSettingsModel.voltmeterFragments[MODULE_1_FRAGMENT]?.model) {
                     (this?.obj?.value?.toDouble()!! / this.tap.value?.toDouble()!!).autoformat()
                 }
             }
             model.testObject.value.objectTransformer == TYPE_2_VOLTAGE.toString() -> {
-                with(model.coefficientsSettingsModel.fragments[MODULE_2_FRAGMENT]?.model) {
+                with(model.coefficientsSettingsModel.voltmeterFragments[MODULE_2_FRAGMENT]?.model) {
                     (this?.obj?.value?.toDouble()!! / this.tap.value?.toDouble()!!).autoformat()
                 }
 
@@ -209,10 +209,10 @@ class TestController : Controller() {
     private fun setVoltmeterKTR(transformer: String) {
         val coefficientSettingsModel = when (transformer) {
             TYPE_1_VOLTAGE.toString() -> {
-                model.coefficientsSettingsModel.fragments.getValue(MODULE_1_FRAGMENT).model
+                model.coefficientsSettingsModel.voltmeterFragments.getValue(MODULE_1_FRAGMENT).model
             }
             TYPE_2_VOLTAGE.toString() -> {
-                model.coefficientsSettingsModel.fragments.getValue(MODULE_2_FRAGMENT).model
+                model.coefficientsSettingsModel.voltmeterFragments.getValue(MODULE_2_FRAGMENT).model
             }
             else -> null
         }
