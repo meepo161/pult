@@ -44,26 +44,12 @@ class TestController : Controller() {
         const val MANUAL_TICK_COUNT = 360
     }
 
-    var isLightingFixed: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                currentTest.cause = Test.CauseDescriptor.LIGHT_FIXED
-            }
-        }
     private lateinit var fillTableVoltage: (Number) -> Unit
 
     val owenPrDevice = getDeviceById(DeviceID.DD1) as OwenPrController
     val latrDevice = getDeviceById(DeviceID.GV240) as AvemLatrController
     val voltmeterDevice = getDeviceById(DeviceID.PV21) as Avem4Controller
     val ammeterDevice = getDeviceById(DeviceID.PA11) as Avem7Controller
-
-    val deviceControllers = listOf(
-        owenPrDevice,
-        latrDevice,
-        voltmeterDevice,
-        ammeterDevice,
-    )
 
     private val view: TestView by inject()
     private val model: MainViewModel by inject()
