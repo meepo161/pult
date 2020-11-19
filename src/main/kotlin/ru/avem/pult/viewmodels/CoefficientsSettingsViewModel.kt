@@ -17,7 +17,7 @@ class CoefficientsSettingsViewModel : ViewModel() {
         MODULE_1_FRAGMENT to find(),
         MODULE_2_FRAGMENT to find(),
     )
-    val simpleFragments = mapOf<String, CoefficientsSettingsView.SimpleTwoFieldFormFragment>(
+    val simpleFragments = mapOf(
         SIMPLE_FRAGMENT_1 to CoefficientsSettingsView.SimpleTwoFieldFormFragment(
             "Первичная обмотка",
             "Вторичная обмотка"
@@ -36,6 +36,11 @@ class CoefficientsSettingsViewModel : ViewModel() {
         }
 
     init {
+        loadVoltmeterCoefficients()
+        loadSimpleCoefficients()
+    }
+
+    private fun loadVoltmeterCoefficients() {
         val ctx = JAXBContext.newInstance(CoefficientSettingsFragmentModel::class.java)
         val unmarshaller = ctx.createUnmarshaller()
         with(File("coef")) {
@@ -45,6 +50,21 @@ class CoefficientsSettingsViewModel : ViewModel() {
                         voltmeterFragments[it.nameWithoutExtension]?.model?.latr?.value = this.latr.value
                         voltmeterFragments[it.nameWithoutExtension]?.model?.obj?.value = this.obj.value
                         voltmeterFragments[it.nameWithoutExtension]?.model?.tap?.value = this.tap.value
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadSimpleCoefficients() {
+        val ctx = JAXBContext.newInstance(SimpleTwoFieldFormModel::class.java)
+        val unmarshaller = ctx.createUnmarshaller()
+        with(File("coef")) {
+            if (this.isDirectory) {
+                this.listFiles()?.forEach {
+                    with(unmarshaller.unmarshal(it) as SimpleTwoFieldFormModel) {
+                        simpleFragments[it.nameWithoutExtension]?.model?.firstValue?.value = this.firstValue.value
+                        simpleFragments[it.nameWithoutExtension]?.model?.secondValue?.value = this.secondValue.value
                     }
                 }
             }
