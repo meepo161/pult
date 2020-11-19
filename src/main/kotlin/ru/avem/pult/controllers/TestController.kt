@@ -148,10 +148,10 @@ class TestController : Controller() {
 
     fun initTest() {
         thread {
+            chooseAndStartTest()
             clearLog()
-            initModule1()
+            initDevices()
             initGeneralDevices()
-            startTest()
         }
     }
 
@@ -161,19 +161,25 @@ class TestController : Controller() {
 
     private fun initGeneralDevices() {
         setVoltmeterKTR(model.testObject.value.objectTransformer)
+        //todo КТР Амперметра
         CommunicationModel.startPoll(DeviceID.PV21, Avem4Model.RMS_VOLTAGE, fillTableVoltage)
         initLatr()
     }
 
     private fun initOwenPR() {
         owenPrDevice.presetGeneralProtectionsMasks()
-        owenPrDevice.presetBathProtectionsMasks()
         CommunicationModel.addWritingRegister(DeviceID.DD1, OwenPrModel.CMD, 1.toShort())
         owenPrDevice.resetTriggers()
 
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_RAW, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_TRIG, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_TRIG_INV, {})
+        CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_01_F) { amperage ->
+            impulseTableValues[0].dat1.value = amperage.toString()
+        }
+        CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_02_F) { amperage ->
+            impulseTableValues[0].dat2.value = amperage.toString()
+        }
     }
 
     private fun initLatr() {
@@ -191,11 +197,8 @@ class TestController : Controller() {
         }
     }
 
-    private fun initModule1() {
+    private fun initDevices() {
         initOwenPR()
-        ammeterDevice.toggleProgrammingMode()
-        ammeterDevice.writeRegister(ammeterDevice.getRegisterById(Avem7Model.SHUNT), 10f)
-        ammeterDevice.writeRegister(ammeterDevice.getRegisterById(Avem7Model.PGA_MODE), 7.toShort())
 
         fillTableVoltage = { value ->
             tableValues[0].measuredVoltage.value = value.toDouble().autoformat()
@@ -221,11 +224,7 @@ class TestController : Controller() {
         voltmeterDevice.writeRuntimeKTR(ktr)
     }
 
-    private fun startTest() {
-        startModule1()
-    }
-
-    private fun startModule1() {
+    private fun chooseAndStartTest() {
         currentTest = when {
             model.test.value == TEST_1 -> Test1(model, view, this)
             model.test.value == TEST_2 -> Test2(model, view, this)

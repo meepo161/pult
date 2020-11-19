@@ -30,6 +30,10 @@ class OwenPrModel : IDeviceModel {
         const val DO_ERROR_S2_TIME = "DO_ERROR_S2_TIME"
         const val DO_ERROR_S3_TIME = "DO_ERROR_S3_TIME"
         const val DO_ERROR_S4_TIME = "DO_ERROR_S4_TIME"
+        const val AI_01_F = "AI_01_F"
+        const val AI_02_F = "AI_02_F"
+        const val AI_03_F = "AI_03_F"
+        const val AI_04_F = "AI_04_F"
         const val WD_TIMEOUT = "WD_TIMEOUT"
         const val CMD = "CMD"
         const val STATE = "STATE"
@@ -61,6 +65,10 @@ class OwenPrModel : IDeviceModel {
         DO_ERROR_S2_TIME to DeviceRegister(562, DeviceRegister.RegisterValueType.SHORT),
         DO_ERROR_S3_TIME to DeviceRegister(567, DeviceRegister.RegisterValueType.SHORT),
         DO_ERROR_S4_TIME to DeviceRegister(572, DeviceRegister.RegisterValueType.SHORT),
+        AI_01_F to DeviceRegister(531, DeviceRegister.RegisterValueType.FLOAT),
+        AI_02_F to DeviceRegister(533, DeviceRegister.RegisterValueType.FLOAT),
+        AI_03_F to DeviceRegister(535, DeviceRegister.RegisterValueType.FLOAT),
+        AI_04_F to DeviceRegister(537, DeviceRegister.RegisterValueType.FLOAT),
         WD_TIMEOUT to DeviceRegister(573, DeviceRegister.RegisterValueType.SHORT),
         CMD to DeviceRegister(574, DeviceRegister.RegisterValueType.SHORT),
         STATE to DeviceRegister(575, DeviceRegister.RegisterValueType.SHORT)

@@ -133,29 +133,11 @@ class OwenPrController(
     }
 
     fun presetGeneralProtectionsMasks() {
-        with(getRegisterById(OwenPrModel.DO_ERROR_S1_TIME)) {
-            writeRegister(this, 300.toShort())
-        }
-        with(getRegisterById(OwenPrModel.DO_ERROR_S2_TIME)) {
-            writeRegister(this, 300.toShort())
-        }
-        with(getRegisterById(OwenPrModel.DI_01_16_ERROR_MASK_1)) {
-            writeRegister(this, 8.toShort())
-        }
         with(getRegisterById(OwenPrModel.DI_01_16_ERROR_MASK_0)) {
-            writeRegister(this, 384.toShort())
+            writeRegister(this, 112.toShort())
         }
         with(getRegisterById(OwenPrModel.DO_01_16_ERROR_S1_MASK_0)) {
-            writeRegister(this, 47.toShort())
-        }
-        with(getRegisterById(OwenPrModel.DO_01_16_ERROR_S2_MASK_0)) {
-            writeRegister(this, 528.toShort())
-        }
-    }
-
-    fun presetBathProtectionsMasks() {
-        with(getRegisterById(OwenPrModel.DI_01_16_ERROR_MASK_0)) {
-            writeRegister(this, 0.toShort())
+            writeRegister(this, 30.toShort())
         }
     }
 
