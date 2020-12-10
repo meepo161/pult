@@ -36,9 +36,9 @@ object CommunicationModel {
     private val adapter = ModbusRTUAdapter(connection)
 
     private val deviceControllers: Map<DeviceID, IDeviceController> = mapOf(
-        DeviceID.DD1 to OwenPrController(DeviceID.DD1.toString(), adapter, 3),
+        DeviceID.DD1 to OwenPrController(DeviceID.DD1.toString(), adapter, 1),
         DeviceID.PV21 to Avem4Controller(DeviceID.PV21.toString(), adapter, 21),
-        DeviceID.PA11 to Avem7Controller(DeviceID.PA11.toString(), adapter, 12),
+        DeviceID.PA11 to Avem7Controller(DeviceID.PA11.toString(), adapter, 11),
         DeviceID.GV240 to AvemLatrController(DeviceID.GV240.toString(), adapter, 240.toByte())
     )
 

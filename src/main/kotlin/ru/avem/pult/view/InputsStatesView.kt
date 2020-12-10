@@ -26,37 +26,37 @@ class InputsStatesView : View("Состояние входов БСУ") {
             val dd1 = CommunicationModel.getDeviceById(CommunicationModel.DeviceID.DD1)
                 .getRegisterById(OwenPrModel.DI_01_16_RAW)
             while (isDocked) {
-                if (dd1.value.toInt().getRange(0).toBoolean()) {
+                if (dd1.value.toInt().getRange(1).toBoolean()) {
                     km1State.fill = c("green")
                 } else {
                     km1State.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(1).toBoolean()) {
+                if (dd1.value.toInt().getRange(2).toBoolean()) {
                     km2State.fill = c("green")
                 } else {
                     km2State.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(2).toBoolean()) {
+                if (dd1.value.toInt().getRange(3).toBoolean()) {
                     km3State.fill = c("green")
                 } else {
                     km3State.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(3).toBoolean()) {
+                if (dd1.value.toInt().getRange(4).toBoolean()) {
                     doorState.fill = c("green")
                 } else {
                     doorState.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(4).toBoolean()) {
+                if (dd1.value.toInt().getRange(5).toBoolean()) {
                     ka1State.fill = c("green")
                 } else {
                     ka1State.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(5).toBoolean()) {
+                if (dd1.value.toInt().getRange(6).toBoolean()) {
                     ka2State.fill = c("green")
                 } else {
                     ka2State.fill = c("red")
                 }
-                if (dd1.value.toInt().getRange(6).toBoolean()) {
+                if (dd1.value.toInt().getRange(7).toBoolean()) {
                     km5State.fill = c("green")
                 } else {
                     km5State.fill = c("red")
