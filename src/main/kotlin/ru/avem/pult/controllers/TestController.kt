@@ -85,6 +85,7 @@ class TestController : Controller() {
 
     var ktr = 1f
     var ktrSettable = 1f
+    var isTimerStart = false
 
     private lateinit var currentTest: Test
 

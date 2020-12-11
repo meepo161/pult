@@ -48,19 +48,13 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
 
         if (isTestRunning && model.isManualVoltageRegulation.value) {
             view.appendMessageToLog(LogTag.MESSAGE, "Запуск АРН в режиме ручного регулирования напряжения")
-            view.appendMessageToLog(
-                LogTag.DEBUG,
-                "АРН: ${(model.testObject.value.objectVoltage.toFloat() * if (isUsingAccurate) 7.3f else 1f) / controller.ktrSettable}"
-            )
-            view.appendMessageToLog(LogTag.DEBUG, "model.testObject.value.objectVoltage: ${model.testObject.value.objectVoltage.toFloat()}")
-            view.appendMessageToLog(LogTag.DEBUG, "controller.ktrSettable: ${controller.ktrSettable}")
             controller.latrDevice.startManual(
                 (model.testObject.value.objectVoltage.toFloat() * if (isUsingAccurate) 7.3f else 1f) / controller.ktrSettable
             )
 
             val manualTimer =
                 CallbackTimer(tickPeriod = 1.seconds, tickTimes = TestController.MANUAL_TICK_COUNT, tickJob = {
-                    if (!isTestRunning) {
+                    if (!isTestRunning || controller.isTimerStart) {
                         it.stop()
                     }
                 }, onFinishJob = {
@@ -124,7 +118,7 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
                 CallbackTimer(tickPeriod = 1.seconds, tickTimes = model.testObject.value.objectTime.toInt(),
                     tickJob = {
                         if (isTestRunning) {
-                            controller.tableValues[0].testTime.value = it.getCurrentTicks().toString()
+                            controller.impulseTableValues[0].testTime.value = it.getCurrentTicks().toString()
                             view.setExperimentProgress(it.getCurrentTicks(), model.testObject.value.objectTime.toInt())
                         } else {
                             it.stop()

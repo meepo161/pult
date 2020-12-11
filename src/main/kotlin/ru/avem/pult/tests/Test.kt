@@ -195,6 +195,7 @@ abstract class Test(
                 }
             }
 
+            controller.isTimerStart = false
             saveProtocolToDB(cause)
             view.setExperimentProgress(0)
             runLater {
@@ -215,9 +216,11 @@ abstract class Test(
     fun switchExperimentButtonsState() {
         runLater {
             if (isTestRunning) {
-                view.buttonBack.disableProperty().set(true)
+                view.buttonBack.isDisable = true
+                view.buttonStartTimer.isDisable = false
             } else {
-                view.buttonBack.disableProperty().set(false)
+                view.buttonBack.isDisable = false
+                view.buttonStartTimer.isDisable = true
             }
         }
     }

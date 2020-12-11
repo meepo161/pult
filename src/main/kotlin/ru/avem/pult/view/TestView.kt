@@ -37,6 +37,7 @@ class TestView : View() {
     var buttonBack: Button by singleAssign()
     var buttonTestStart: Button by singleAssign()
     var buttonTestStop: Button by singleAssign()
+    var buttonStartTimer: Button by singleAssign()
     var progressBarTime: ProgressBar by singleAssign()
     var labelExperimentName: Label by singleAssign()
 
@@ -191,6 +192,21 @@ class TestView : View() {
                         controller.stopTest()
                     }
                 }
+
+                buttonStartTimer = button("Старт таймера") {
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.CLOCK_ALT).apply {
+                        glyphSize = 35.0
+                        fill = c("#039dfc")
+                    }
+                    prefWidth = 200.0
+                    scaleX = 1.5
+                    scaleY = 1.5
+                    isDisable = true
+                    action {
+                        isDisable = true
+                        controller.isTimerStart = true
+                    }
+                }.removeWhen(mainViewModel.isManualVoltageRegulation.not())
             }
         }
     }
