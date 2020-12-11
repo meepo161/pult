@@ -183,7 +183,7 @@ class TestView : View() {
                         glyphSize = 35.0
                         fill = c("red")
                     }
-
+                    isDisable = true
                     prefWidth = 200.0
                     scaleX = 1.5
                     scaleY = 1.5
