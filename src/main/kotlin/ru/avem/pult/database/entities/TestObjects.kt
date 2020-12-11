@@ -10,7 +10,6 @@ object TestObjects : IntIdTable() {
     val objectVoltage = varchar("voltage", 32)
     val objectAmperage = varchar("amperage", 32)
     val objectTime = varchar("time", 32)
-    val objectModule = varchar("module", 512)
     val objectTransformer = varchar("transformer", 64)
     val objectTest = varchar("test", 2048)
 }
@@ -22,7 +21,6 @@ class TestObject(id: EntityID<Int>) : IntEntity(id) {
     var objectVoltage by TestObjects.objectVoltage
     var objectAmperage by TestObjects.objectAmperage
     var objectTime by TestObjects.objectTime
-    var objectModule by TestObjects.objectModule
     var objectTransformer by TestObjects.objectTransformer
     var objectTest by TestObjects.objectTest
 

@@ -12,16 +12,10 @@ import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.MainViewModel
-import ru.avem.pult.viewmodels.MainViewModel.Companion.CONNECTION_1
-import ru.avem.pult.viewmodels.MainViewModel.Companion.CONNECTION_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.CONNECTION_3
-import ru.avem.pult.viewmodels.MainViewModel.Companion.CONNECTION_4
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_1
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_3
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.*
 import tornadofx.controlsfx.confirmNotification
 import tornadofx.controlsfx.errorNotification
@@ -38,6 +32,8 @@ abstract class Test(
     enum class CauseDescriptor(val description: String) {
         CONTROL_UNIT_NOT_RESPOND("БСУ не отвечает"),
         AMPERAGE_PROTECTION_TRIGG("Изделие было пробито. Сработала токовая защита"),
+        KA1_TRIGGERED("Сработала токовая защита до АРН"),
+        KA2_TRIGGERED("Сработала токовая защита после АРН"),
         AMPERAGE_OVERLOAD("Ток превысил заданный"),
         LATR_CONTROLLER_ERROR("Ошибка контроллера АРН"),
         CANCELED("Испытание отменено оператором"),
@@ -51,7 +47,8 @@ abstract class Test(
         SHORTLOCKER_NOT_WORKING_20KV("Короткозамыкатель 20кВ не сработал"),
         TEST_CONTACTOR_NOT_WORKING_200V("Контактор испытания $TYPE_1_VOLTAGE В не замкнулся"),
         TEST_CONTACTOR_NOT_WORKING_20KV("Контактор испытания $TYPE_2_VOLTAGE В не замкнулся"),
-        TEST_CONTACTOR_NOT_WORKING_50KV("Контактор испытания $TYPE_3_VOLTAGE В не замкнулся"),
+        VIU_CONTACTOR_NOT_WORKING("Контактор КМ3 не замкнулся"),
+        IMPULSE_CONTACTOR_NOT_WORKING("Контактор КМ2 не замкнулся"),
         GENERAL_AMMETER_RELAY("Сработало реле амперметра общего тока утечки"),
         OPERATOR_IS_IDLE("Индикатор не зажёгся или оператор не зафиксировал зажигание"),
         BATH_DOOR_NOT_CLOSED("Открыта дверь ванны или не сработал удерживающий замок"),
@@ -88,9 +85,6 @@ abstract class Test(
         controller.clearTableResults()
         view.setTestStatusColor(TestStateColors.GO)
         view.setExperimentProgress(-1)
-        model.selectedConnectionPoints.values.forEach {
-            it.isNeedToUpdate = true
-        }
         controller.tableValues.forEach {
             it.testTime.value = ""
         }
@@ -106,11 +100,6 @@ abstract class Test(
             } catch (ignored: LatrStuckException) {
                 cause = CauseDescriptor.LATR_STUCK
             }
-            controller.owenPrDD3.offBathChannel1()
-            controller.owenPrDD3.offBathChannel2()
-            controller.owenPrDD3.offBathChannel3()
-            controller.owenPrDD3.offBathChannel4()
-            controller.owenPrDD2.onStepDownTransformer()
             when {
                 model.testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
                     view.appendMessageToLog(LogTag.MESSAGE, "Разборка схемы испытания $TYPE_1_VOLTAGE В")
@@ -120,18 +109,13 @@ abstract class Test(
                     view.appendMessageToLog(LogTag.MESSAGE, "Разборка схемы испытания $TYPE_2_VOLTAGE В")
                     controller.disassembleType2Scheme()
                 }
-                model.testObject.value.objectTransformer == TYPE_3_VOLTAGE.toString() -> {
-                    view.appendMessageToLog(LogTag.MESSAGE, "Разборка схемы испытания $TYPE_3_VOLTAGE В")
-                    controller.disassembleType3Scheme()
-                }
             }
             controller.deinitWritingModules()
             controller.voltmeterDevice.writeRuntimeKTR(1f)
-            controller.owenPrDD2.turnOffLampLess1000()
-            controller.owenPrDD2.turnOffLampMore1000()
-            controller.owenPrDD2.offLightSign()
-            controller.owenPrDD2.offTimer()
+            controller.owenPrDevice.offLightSign()
             when (cause) {
+                CauseDescriptor.KA1_TRIGGERED,
+                CauseDescriptor.KA2_TRIGGERED,
                 CauseDescriptor.AMPERAGE_OVERLOAD,
                 CauseDescriptor.CONTROL_UNIT_NOT_RESPOND,
                 CauseDescriptor.AMPERAGE_PROTECTION_TRIGG,
@@ -144,9 +128,10 @@ abstract class Test(
                 CauseDescriptor.HI_POWER_SWITCH_LOCKED,
                 CauseDescriptor.BUTTON_START_NOT_PRESSED,
                 CauseDescriptor.SHORTLOCKER_NOT_WORKING_20KV,
+                CauseDescriptor.VIU_CONTACTOR_NOT_WORKING,
+                CauseDescriptor.IMPULSE_CONTACTOR_NOT_WORKING,
                 CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_200V,
                 CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_20KV,
-                CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_50KV,
                 CauseDescriptor.BATH_DOOR_NOT_CLOSED,
                 CauseDescriptor.GENERAL_AMMETER_RELAY,
                 CauseDescriptor.OPERATOR_IS_IDLE -> {
@@ -163,22 +148,7 @@ abstract class Test(
                         "Испытание не завершено: ${cause.description}${getNotRespondingDevicesMessage()}"
                     )
                     view.setTestStatusColor(TestStateColors.ERROR)
-                    if (model.module.value == MODULE_2) {
-                        model.selectedConnectionPoints[CONNECTION_1]?.let {
-                            controller.tableValues[0].result.value = "Провал"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_2]?.let {
-                            controller.tableValues[1].result.value = "Провал"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_3]?.let {
-                            controller.tableValues[2].result.value = "Провал"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_4]?.let {
-                            controller.tableValues[3].result.value = "Провал"
-                        }
-                    } else {
-                        controller.tableValues[0].result.value = "Провал"
-                    }
+                    controller.tableValues[0].result.value = "Провал"
                 }
                 CauseDescriptor.CANCELED -> {
                     runLater {
@@ -191,49 +161,11 @@ abstract class Test(
                     }
                     view.appendMessageToLog(LogTag.ERROR, "Испытание не завершено: ${cause.description}")
                     view.setTestStatusColor(TestStateColors.GO)
-                    if (model.module.value == MODULE_2) {
-                        model.selectedConnectionPoints[CONNECTION_1]?.let {
-                            controller.tableValues[0].result.value = "Отменено"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_2]?.let {
-                            controller.tableValues[1].result.value = "Отменено"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_3]?.let {
-                            controller.tableValues[2].result.value = "Отменено"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_4]?.let {
-                            controller.tableValues[3].result.value = "Отменено"
-                        }
-                    } else {
-                        controller.tableValues[0].result.value = "Отменено"
-                    }
+                    controller.tableValues[0].result.value = "Отменено"
                 }
                 CauseDescriptor.ONE_OR_MORE_CHANNELS_TRIGGERED, CauseDescriptor.ALL_CHANNELS_TRIGGERED,
                 CauseDescriptor.ONE_OR_MORE_CHANNELS_BAD -> {
-                    if (model.module.value == MODULE_2) {
-                        model.selectedConnectionPoints[CONNECTION_1]?.let {
-                            if (!it.isNeedToUpdate) {
-                                controller.tableValues[0].result.value = "Не годен"
-                            }
-                        }
-                        model.selectedConnectionPoints[CONNECTION_2]?.let {
-                            if (!it.isNeedToUpdate) {
-                                controller.tableValues[1].result.value = "Не годен"
-                            }
-                        }
-                        model.selectedConnectionPoints[CONNECTION_3]?.let {
-                            if (!it.isNeedToUpdate) {
-                                controller.tableValues[2].result.value = "Не годен"
-                            }
-                        }
-                        model.selectedConnectionPoints[CONNECTION_4]?.let {
-                            if (!it.isNeedToUpdate) {
-                                controller.tableValues[3].result.value = "Не годен"
-                            }
-                        }
-                    } else {
-                        controller.tableValues[0].result.value = "Не годен"
-                    }
+                    controller.tableValues[0].result.value = "Не годен"
                     runLater {
                         warningNotification(
                             title = "Предупреждение",
@@ -249,22 +181,7 @@ abstract class Test(
                     view.setTestStatusColor(TestStateColors.ERROR)
                 }
                 CauseDescriptor.SUCCESS, CauseDescriptor.EMPTY, CauseDescriptor.LIGHT_FIXED -> {
-                    if (model.module.value == MODULE_2) {
-                        model.selectedConnectionPoints[CONNECTION_1]?.let {
-                            controller.tableValues[0].result.value = "Успех"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_2]?.let {
-                            controller.tableValues[1].result.value = "Успех"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_3]?.let {
-                            controller.tableValues[2].result.value = "Успех"
-                        }
-                        model.selectedConnectionPoints[CONNECTION_4]?.let {
-                            controller.tableValues[3].result.value = "Успех"
-                        }
-                    } else {
-                        controller.tableValues[0].result.value = "Успех"
-                    }
+                    controller.tableValues[0].result.value = "Успех"
                     runLater {
                         confirmNotification(
                             title = "Успешно",
@@ -278,16 +195,10 @@ abstract class Test(
                 }
             }
 
+            controller.isTimerStart = false
             saveProtocolToDB(cause)
             view.setExperimentProgress(0)
-            runLater {
-                view.buttonTestStart.isDisable = false
-                view.buttonTestStop.isDisable = false
-            }
             switchExperimentButtonsState()
-            model.selectedConnectionPoints.values.forEach {
-                it.isNeedToUpdate = false
-            }
         }
     }
 
@@ -301,11 +212,15 @@ abstract class Test(
     fun switchExperimentButtonsState() {
         runLater {
             if (isTestRunning) {
-                view.buttonBack.disableProperty().set(true)
-                view.buttonFixLighting.isDisable = false
+                view.buttonTestStart.isDisable = true
+                view.buttonTestStop.isDisable = false
+                view.buttonBack.isDisable = true
+                view.buttonStartTimer.isDisable = false
             } else {
-                view.buttonBack.disableProperty().set(false)
-                view.buttonFixLighting.isDisable = true
+                view.buttonTestStart.isDisable = false
+                view.buttonTestStop.isDisable = true
+                view.buttonBack.isDisable = false
+                view.buttonStartTimer.isDisable = true
             }
         }
     }
@@ -316,198 +231,41 @@ abstract class Test(
 
         val unixTime = System.currentTimeMillis()
 
-        when {
-            model.testObject.value.objectModule == MODULE_1 || model.testObject.value.objectModule == MODULE_3 -> {
-                transaction {
-                    Protocol.new {
-                        date = dateFormatter.format(unixTime)
-                        time = timeFormatter.format(unixTime)
-                        factoryNumber = model.factoryNumber.value
-                        objectName = model.testObject.value.objectName
-                        specifiedU = controller.tableValues[0].specifiedVoltage.value
-                        specifiedI = controller.tableValues[0].specifiedAmperage.value
+        transaction {
+            Protocol.new {
+                date = dateFormatter.format(unixTime)
+                time = timeFormatter.format(unixTime)
+                factoryNumber = model.factoryNumber.value
+                objectName = model.testObject.value.objectName
+                specifiedU = controller.tableValues[0].specifiedVoltage.value
+                specifiedI = controller.tableValues[0].specifiedAmperage.value
+                when (model.test.value) {
+                    TEST_1 -> {
                         objectU0 = controller.tableValues[0].measuredVoltage.value
                         objectI0 = controller.tableValues[0].measuredAmperage.value
-                        experimentTime0 = controller.tableValues[0].testTime.value
-                        result0 = controller.tableValues[0].result.value
-                        result = when (cause) {
-                            CauseDescriptor.SUCCESS, CauseDescriptor.EMPTY, CauseDescriptor.LIGHT_FIXED -> {
-                                "Успех"
-                            }
-                            CauseDescriptor.CANCELED -> {
-                                "Отменено"
-                            }
-                            else -> {
-                                "Провал"
-                            }
-                        }
-                        tester = model.user.value.fullName
+                    }
+                    TEST_2 -> {
+                        objectU0 = controller.impulseTableValues[0].measuredVoltage.value
+                        objectI0 = controller.impulseTableValues[0].measuredAmperage.value
                     }
                 }
-            }
-            model.testObject.value.objectModule == MODULE_2 -> {
-                transaction {
-                    Protocol.new {
-                        date = dateFormatter.format(unixTime)
-                        time = timeFormatter.format(unixTime)
-                        factoryNumber = model.factoryNumber.value
-                        objectName = model.testObject.value.objectName
-                        model.selectedConnectionPoints[CONNECTION_1]?.let {
-                            specifiedU = controller.tableValues[0].specifiedVoltage.value
-                            specifiedI = controller.tableValues[0].specifiedAmperage.value
-                            objectU0 = controller.tableValues[0].measuredVoltage.value
-                            objectI0 = controller.tableValues[0].measuredAmperage.value
-                            experimentTime0 = controller.tableValues[0].testTime.value
-                            result0 = controller.tableValues[0].result.value
-                        }
-                        model.selectedConnectionPoints[CONNECTION_2]?.let {
-                            specifiedU = controller.tableValues[1].specifiedVoltage.value
-                            specifiedI = controller.tableValues[1].specifiedAmperage.value
-                            objectU1 = controller.tableValues[1].measuredVoltage.value
-                            objectI1 = controller.tableValues[1].measuredAmperage.value
-                            experimentTime1 = controller.tableValues[1].testTime.value
-                            result1 = controller.tableValues[1].result.value
-                        }
-                        model.selectedConnectionPoints[CONNECTION_3]?.let {
-                            specifiedU = controller.tableValues[2].specifiedVoltage.value
-                            specifiedI = controller.tableValues[2].specifiedAmperage.value
-                            objectU2 = controller.tableValues[2].measuredVoltage.value
-                            objectI2 = controller.tableValues[2].measuredAmperage.value
-                            experimentTime2 = controller.tableValues[2].testTime.value
-                            result2 = controller.tableValues[2].result.value
-                        }
-                        model.selectedConnectionPoints[CONNECTION_4]?.let {
-                            specifiedU = controller.tableValues[3].specifiedVoltage.value
-                            specifiedI = controller.tableValues[3].specifiedAmperage.value
-                            objectU3 = controller.tableValues[3].measuredVoltage.value
-                            objectI3 = controller.tableValues[3].measuredAmperage.value
-                            experimentTime3 = controller.tableValues[3].testTime.value
-                            result3 = controller.tableValues[3].result.value
-                        }
-                        result = when (cause) {
-                            CauseDescriptor.SUCCESS, CauseDescriptor.EMPTY, CauseDescriptor.LIGHT_FIXED -> {
-                                "Успех"
-                            }
-                            CauseDescriptor.CANCELED -> {
-                                "Отменено"
-                            }
-                            else -> {
-                                "Провал"
-                            }
-                        }
-                        tester = model.user.value.fullName
+                experimentTime0 = controller.tableValues[0].testTime.value
+                result0 = controller.tableValues[0].result.value
+                result = when (cause) {
+                    CauseDescriptor.SUCCESS, CauseDescriptor.EMPTY, CauseDescriptor.LIGHT_FIXED -> {
+                        "Успех"
+                    }
+                    CauseDescriptor.CANCELED -> {
+                        "Отменено"
+                    }
+                    else -> {
+                        "Провал"
                     }
                 }
+                tester = model.user.value?.fullName ?: ""
             }
         }
         view.appendMessageToLog(LogTag.MESSAGE, "Протокол сохранён")
-    }
-
-    fun waitForUserStart() {
-        var conf: Alert? = null
-        runLater {
-            conf = Alert(Alert.AlertType.WARNING).apply {
-                title = "Запуск"
-                headerText = "Переведите рубильник <Видимый разрыв> в рабочее положение или нажмите СТОП для отмены"
-                contentText =
-                    "Если реакции от оператора не последует в течение 15 секунд, то испытание автоматически отменится"
-                dialogPane.style {
-                    fontSize = 16.px
-                }
-                dialogPane.lookupButton(ButtonType.OK).isVisible = false
-                show()
-            }
-        }
-
-        val hiSwitchTimer = CallbackTimer(tickPeriod = 0.1.seconds, tickTimes = 150, onStartJob = {
-            view.appendMessageToLog(
-                LogTag.MESSAGE,
-                "Переведите рубильник <Видимый разрыв> в рабочее положение или нажмите СТОП для отмены"
-            )
-        }, tickJob = {
-            if (!isTestRunning) {
-                runLater {
-                    conf!!.close()
-                }
-                it.stop()
-            }
-            if (controller.owenPrDD2.isHiSwitchTurned()) {
-                runLater {
-                    conf!!.close()
-                }
-                it.stop()
-            }
-            if (controller.owenPrDD2.isStopPressed()) {
-                runLater {
-                    conf!!.close()
-                }
-                cause = CauseDescriptor.CANCELED
-                it.stop()
-            }
-        }, onFinishJob = {
-            runLater {
-                conf!!.close()
-            }
-            cause = CauseDescriptor.HI_POWER_SWITCH_TIMEOUT
-        })
-
-        while (hiSwitchTimer.isRunning) {
-            sleep(500)
-        }
-
-        if (isTestRunning) {
-            controller.owenPrDD2.resetTriggers()
-            controller.owenPrDD2.onButtonPostPower()
-            view.appendMessageToLog(
-                LogTag.MESSAGE,
-                "Нажмите кнопку ПУСК на кнопочном посте для старта испытания, или СТОП для отмены"
-            )
-
-            runLater {
-                conf = Alert(Alert.AlertType.WARNING).apply {
-                    title = "Запуск"
-                    headerText =
-                        "Нажмите кнопку ПУСК на кнопочном посте для старта испытания, или СТОП для отмены"
-                    contentText =
-                        "Если реакции от оператора не последует в течение 15 секунд, то испытание автоматически отменится"
-                    dialogPane.style {
-                        fontSize = 16.px
-                    }
-                    dialogPane.lookupButton(ButtonType.OK).isVisible = false
-                    show()
-                }
-            }
-            val startButtonTimer = CallbackTimer(tickPeriod = 0.1.seconds, tickTimes = 150, tickJob = {
-                if (!isTestRunning) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    it.stop()
-                }
-                if (controller.owenPrDD2.isLatrContactorSwitched()) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    it.stop()
-                }
-                if (controller.owenPrDD2.isStopPressed()) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    cause = CauseDescriptor.CANCELED
-                    it.stop()
-                }
-            }, onFinishJob = {
-                runLater {
-                    conf!!.close()
-                }
-                cause = CauseDescriptor.BUTTON_START_NOT_PRESSED
-            })
-
-            while (startButtonTimer.isRunning) {
-                sleep(500)
-            }
-        }
     }
 
     abstract fun getNotRespondingMessageFromTest(): String

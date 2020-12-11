@@ -13,7 +13,7 @@ import java.io.FileNotFoundException
 object Saver {
     fun saveProtocolAsWorkbook(protocol: Protocol, path: String = "temp.xlsx") {
         val template = File(path)
-        copyFileFromStream(MainApp::class.java.getResource("form1.xlsx").openStream(), template)
+        copyFileFromStream(MainApp::class.java.getResource("form2.xlsx").openStream(), template)
 
         try {
             XSSFWorkbook(template).use {

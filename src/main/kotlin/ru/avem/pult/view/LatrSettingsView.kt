@@ -21,20 +21,9 @@ import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE2_U1_FRAGME
 import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE2_U3_FRAGMENT
 import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE2_U5_FRAGMENT
 import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE2_U8_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_LAST_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U11_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U13_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U15_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U17_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U1_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U20_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U3_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U5_FRAGMENT
-import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE3_U8_FRAGMENT
 import ru.avem.pult.viewmodels.LatrSettingsViewModel.Companion.MODULE_1_FRAGMENT
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.*
 import tornadofx.controlsfx.errorNotification
 import java.io.File
@@ -102,15 +91,15 @@ class LatrSettingsView : View("Настройки АРН") {
             side = Side.LEFT
             tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
 
-            tab("$TYPE_1_VOLTAGE В") {
+            tab("$TYPE_2_VOLTAGE В") {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-                    tab("U ≤ ${TYPE_1_VOLTAGE}В") {
+                    tab("U ≤ ${TYPE_2_VOLTAGE}В") {
                         content = model.fragments.getValue(MODULE_1_FRAGMENT).root
                     }
                 }
             }
-            tab("$TYPE_2_VOLTAGE В") {
+            tab("$TYPE_1_VOLTAGE В") {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                     tab("U ≤ 1кВ") {
@@ -139,41 +128,6 @@ class LatrSettingsView : View("Настройки АРН") {
                     }
                     tab("U ≤ ${TYPE_2_VOLTAGE / 1000}кВ") {
                         content = model.fragments.getValue(MODULE2_LAST_FRAGMENT).root
-                    }
-                }
-            }
-            tab("$TYPE_3_VOLTAGE В") {
-                tabpane {
-                    tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-                    tab("U ≤ 1кВ") {
-                        content = model.fragments.getValue(MODULE3_U1_FRAGMENT).root
-                    }
-                    tab("U ≤ 3кВ") {
-                        content = model.fragments.getValue(MODULE3_U3_FRAGMENT).root
-                    }
-                    tab("U ≤ 5кВ") {
-                        content = model.fragments.getValue(MODULE3_U5_FRAGMENT).root
-                    }
-                    tab("U ≤ 8кВ") {
-                        content = model.fragments.getValue(MODULE3_U8_FRAGMENT).root
-                    }
-                    tab("U ≤ 11кВ") {
-                        content = model.fragments.getValue(MODULE3_U11_FRAGMENT).root
-                    }
-                    tab("U ≤ 13кВ") {
-                        content = model.fragments.getValue(MODULE3_U13_FRAGMENT).root
-                    }
-                    tab("U ≤ 15кВ") {
-                        content = model.fragments.getValue(MODULE3_U15_FRAGMENT).root
-                    }
-                    tab("U ≤ 17кВ") {
-                        content = model.fragments.getValue(MODULE3_U17_FRAGMENT).root
-                    }
-                    tab("U ≤ 20кВ") {
-                        content = model.fragments.getValue(MODULE3_U20_FRAGMENT).root
-                    }
-                    tab("U ≤ ${TYPE_3_VOLTAGE / 1000}кВ") {
-                        content = model.fragments.getValue(MODULE3_LAST_FRAGMENT).root
                     }
                 }
             }

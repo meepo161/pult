@@ -9,7 +9,6 @@ class TestObjectAddViewModel {
     var voltage = SimpleIntegerProperty()
     var amperage = SimpleDoubleProperty()
     var time = SimpleIntegerProperty()
-    var module = SimpleStringProperty()
     var transformer = SimpleStringProperty()
     var test = SimpleStringProperty()
 }

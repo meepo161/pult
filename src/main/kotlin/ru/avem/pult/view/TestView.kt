@@ -9,17 +9,19 @@ import javafx.event.EventHandler
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import ru.avem.pult.controllers.TestController
+import ru.avem.pult.entities.ImpulseTableValues
 import ru.avem.pult.entities.TableValues
 import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.viewmodels.MainViewModel
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_7
 import tornadofx.*
 import java.text.SimpleDateFormat
 
@@ -32,18 +34,68 @@ class TestView : View() {
     private val mainViewModel: MainViewModel by inject()
 
     var vBoxLog: VBox by singleAssign()
-    var circleComStatus: Circle by singleAssign()
     var buttonBack: Button by singleAssign()
     var buttonTestStart: Button by singleAssign()
     var buttonTestStop: Button by singleAssign()
-    var buttonFixLighting: Button by singleAssign()
-    var buttonOpenBathDoor: Button by singleAssign()
+    var buttonStartTimer: Button by singleAssign()
     var progressBarTime: ProgressBar by singleAssign()
     var labelExperimentName: Label by singleAssign()
+
+    var tableContainer: HBox by singleAssign()
 
     var logBuffer: String? = null
 
     override fun onDock() {
+        when (mainViewModel.test.value) {
+            TEST_1 -> {
+                tableview(controller.tableValues) {
+                    hboxConstraints {
+                        hGrow = Priority.ALWAYS
+                    }
+                    prefHeight = 235.0
+                    columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+                    isMouseTransparent = true
+
+                    column("Объекты", TableValues::connection.getter)
+                    column("Uзад ОИ, В", TableValues::specifiedVoltage.getter)
+                    column("КТР", TableValues::ktr.getter)
+                    column("Uизм ОИ, В", TableValues::measuredVoltage.getter)
+                    column("Iут. зад. мА", TableValues::specifiedAmperage.getter)
+                    column("Iут. изм. мА", TableValues::measuredAmperage.getter)
+                    column("Время, с", TableValues::testTime.getter)
+                    column("Результат", TableValues::result.getter)
+                }
+            }
+            TEST_2 -> {
+                tableview(controller.impulseTableValues) {
+                    hboxConstraints {
+                        hGrow = Priority.ALWAYS
+                    }
+                    prefHeight = 235.0
+                    columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+                    isMouseTransparent = true
+
+                    column("Объекты", ImpulseTableValues::connection.getter)
+                    column("Uзад ОИ, В", ImpulseTableValues::specifiedVoltage.getter)
+                    column("КТР", ImpulseTableValues::ktr.getter)
+                    column("Uизм ОИ, В", ImpulseTableValues::measuredVoltage.getter)
+                    column("Iут. зад., мА", ImpulseTableValues::specifiedAmperage.getter)
+                    column("Iут. изм., мА", ImpulseTableValues::measuredAmperage.getter)
+                    column("Дат1, мА", ImpulseTableValues::dat1.getter)
+                    column("Дат2, мА", ImpulseTableValues::dat2.getter)
+                    column("Время, с", ImpulseTableValues::testTime.getter)
+                    column("Результат", ImpulseTableValues::result.getter)
+                }
+            }
+            else -> {
+                null
+            }
+        }?.let {
+            tableContainer.replaceChildren(
+                it
+            )
+        }
+
         title = mainViewModel.test.value
         setExperimentProgress(0)
         controller.clearTable()
@@ -84,19 +136,9 @@ class TestView : View() {
                 rightAnchor = 16.0
                 topAnchor = 120.0
             }
-            tableview(controller.tableValues) {
-                prefHeight = 235.0
-                columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
-                isMouseTransparent = true
 
-                column("Объекты", TableValues::connection.getter)
-                column("Uзад ОИ, В", TableValues::specifiedVoltage.getter)
-                column("КТР", TableValues::ktr.getter)
-                column("Uизм ОИ, В", TableValues::measuredVoltage.getter)
-                column("Iут. зад. мА", TableValues::specifiedAmperage.getter)
-                column("Iут. изм. мА", TableValues::measuredAmperage.getter)
-                column("Время, с", TableValues::testTime.getter)
-                column("Результат", TableValues::result.getter)
+            tableContainer = hbox {
+                //Пустой контейнер, сюда попадет таблица из onDock()
             }
 
             hbox(spacing = 130.0) {
@@ -141,7 +183,7 @@ class TestView : View() {
                         glyphSize = 35.0
                         fill = c("red")
                     }
-
+                    isDisable = true
                     prefWidth = 200.0
                     scaleX = 1.5
                     scaleY = 1.5
@@ -151,8 +193,8 @@ class TestView : View() {
                     }
                 }
 
-                buttonFixLighting = button("Зафиксировать") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.WRENCH).apply {
+                buttonStartTimer = button("Старт таймера") {
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.CLOCK_ALT).apply {
                         glyphSize = 35.0
                         fill = c("#039dfc")
                     }
@@ -161,29 +203,10 @@ class TestView : View() {
                     scaleY = 1.5
                     isDisable = true
                     action {
-                        buttonTestStart.isDisable = true
-                        buttonTestStop.isDisable = true
                         isDisable = true
-                        controller.isLightingFixed = true
+                        controller.isTimerStart = true
                     }
-                }.removeWhen(
-                    mainViewModel.test.isNotEqualTo(TEST_2) and
-                            mainViewModel.test.isNotEqualTo(TEST_7)
-                )
-
-                button("Разблок. люк") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.UNLOCK).apply {
-                        glyphSize = 35.0
-                        fill = c("red")
-                    }
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
-                    isDisable = true
-                    action {
-                        //todo Кнопка нужна в испытаниях с ванной
-                    }
-                }.removeFromParent()
+                }.removeWhen(mainViewModel.isManualVoltageRegulation.not())
             }
         }
     }
@@ -225,23 +248,6 @@ class TestView : View() {
         }
 
         bottom = anchorpane {
-//            label("Связь:") {
-//                anchorpaneConstraints {
-//                    leftAnchor = 16.0
-//                    topAnchor = 4.0
-//                    bottomAnchor = 4.0
-//                }
-//            }
-//
-//            circleComStatus = circle(radius = 8.0) {
-//                anchorpaneConstraints {
-//                    leftAnchor = 70.0
-//                    topAnchor = 9.0
-//                    bottomAnchor = 2.0
-//                }
-//
-//                stroke = c("black")
-//            }
 
             label("Прогресс испытания:") {
                 anchorpaneConstraints {

@@ -7,7 +7,6 @@ import javafx.event.EventType
 import javafx.geometry.Pos
 import javafx.scene.control.ButtonType
 import javafx.scene.control.TableView
-import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.stage.WindowEvent
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,12 +16,8 @@ import ru.avem.pult.database.entities.TestObject
 import ru.avem.pult.database.entities.TestObjects
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.MainViewModel
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_1
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_2
-import ru.avem.pult.viewmodels.MainViewModel.Companion.MODULE_3
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_3_VOLTAGE
 import tornadofx.*
 import tornadofx.controlsfx.warningNotification
 
@@ -106,24 +101,6 @@ class TestObjectView : View("Объекты испытания") {
                                 )
                             }
                         }
-                        TYPE_3_VOLTAGE.toString() -> {
-                            if ((0..TYPE_3_VOLTAGE).contains(value)) {
-                                transaction {
-                                    TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
-                                        it[objectVoltage] = cell.newValue
-                                    }
-                                }
-                            } else {
-                                this.cellDecorator {
-                                    text = it
-                                }
-                                warningNotification(
-                                    "Внимание",
-                                    "Введите корректное значение. Напряжение должно быть в диапазоне 0 - $TYPE_3_VOLTAGE В",
-                                    Pos.BOTTOM_CENTER
-                                )
-                            }
-                        }
                     }
                 }
             }.makeEditable()
@@ -177,7 +154,7 @@ class TestObjectView : View("Объекты испытания") {
                     }
                 }
             }.makeEditable()
-            val experimentColumn = column("Испытание", TestObject::objectTest) {
+            column("Испытание", TestObject::objectTest) {
                 onEditCommit = EventHandler { cell ->
                     if (cell.newValue != null) {
                         transaction {
@@ -194,38 +171,7 @@ class TestObjectView : View("Объекты испытания") {
             }
 
             selectionModel.selectedItemProperty().onChange {
-                experimentColumn.cellFactory = ComboBoxTableCell.forTableColumn(
-                    when (selectedItem?.objectModule) {
-                        MODULE_1 -> {
-                            when (selectedItem?.objectTransformer) {
-                                TYPE_1_VOLTAGE.toString() -> {
-                                    model.firstModuleTestsList200V
-                                }
-                                TYPE_2_VOLTAGE.toString() -> {
-                                    model.firstModuleTestsList20kV
-                                }
-                                else -> null
-                            }
-                        }
-                        MODULE_2 -> {
-                            when (selectedItem?.objectTransformer) {
-                                TYPE_2_VOLTAGE.toString() -> {
-                                    model.secondModuleTestsList20kV
-                                }
-                                TYPE_3_VOLTAGE.toString() -> {
-                                    model.secondModuleTestsList50kV
-                                }
-                                else -> null
-                            }
-                        }
-                        MODULE_3 -> {
-                            model.thirdModuleTestsList
-                        }
-                        else -> {
-                            null
-                        }
-                    }
-                )
+//                experimentColumn.cellFactory = ComboBoxTableCell.forTableColumn(model.firstModuleTestsList200V)
             }
         }
 
