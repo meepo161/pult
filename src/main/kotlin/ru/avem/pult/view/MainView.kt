@@ -329,8 +329,7 @@ class MainView : View("Лаборатория испытательная выс�
                         }
 
                         action {
-//                            val causes = CommunicationModel.checkDevices()
-                            val causes = emptyList<CommunicationModel.DeviceID>()
+                            val causes = CommunicationModel.checkDevices()
                             if (causes.isEmpty()) {
                                 replaceWith<TestView>()
                             } else {

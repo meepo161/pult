@@ -8,13 +8,12 @@ import ru.avem.pult.utils.CallbackTimer
 import ru.avem.pult.utils.LogTag
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.MainViewModel
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
 import tornadofx.seconds
 import java.lang.Thread.sleep
 
-//Испытание повышенным напряжением рабочей части указателя напряжения до 3000 В
+//"Проверка качества изоляции повышенным напряжением промышленной частоты"
 class Test1(model: MainViewModel, view: TestView, controller: TestController) : Test(model, view, controller) {
-    var isUsingAccurate = true
+    var isUsingAccurate = false
 
     override fun start() {
         super.start()
@@ -24,47 +23,24 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
         if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
-            cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
+        if (controller.owenPrDevice.isKa1Triggered()) {
+            cause = CauseDescriptor.KA1_TRIGGERED
         }
-        if (!controller.owenPrDevice.isBathDoorClosed()) {
-            cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
+        if (controller.owenPrDevice.isKa2Triggered()) {
+            cause = CauseDescriptor.KA2_TRIGGERED
         }
 
         if (isTestRunning && isDevicesResponding()) {
-            waitForUserStart()
-            if (isTestRunning) {
-                controller.owenPrDevice.onLightSign()
-                if (model.testObject.value.objectVoltage.toInt() >= 1000) {
-                    controller.owenPrDevice.turnOnLampMore1000()
-                } else {
-                    controller.owenPrDevice.turnOnLampLess1000()
-                }
-            }
-
-            when (model.testObject.value.objectTransformer) {
-                TYPE_2_VOLTAGE.toString() -> {
-                    if (isTestRunning && isDevicesResponding()) {
-                        controller.owenPrDevice.onSoundAlarm()
-                        sleep(3000)
-                        controller.owenPrDevice.offSoundAlarm()
-                        controller.owenPrDevice.togglePowerSupplyMode()
-                        controller.owenPrDevice.onShortlocker20kV()
-                        sleep(1000)
-                        if (!controller.owenPrDevice.is20kVshortlockerSwitched()) {
-                            cause = CauseDescriptor.SHORTLOCKER_NOT_WORKING_20KV
-                        }
-                        if (model.testObject.value.objectVoltage.toInt() > 3000) {
-                            controller.owenPrDevice.offStepDownTransformer()
-                            isUsingAccurate = false
-                        }
-                        controller.owenPrDevice.onTransformer20kV()
-                        sleep(1000)
-                        if (!controller.owenPrDevice.is20kVcontactorSwitched()) {
-                            cause = CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_20KV
-                        }
-                    }
-                }
+            controller.owenPrDevice.onLightSign()
+            controller.owenPrDevice.onSoundAlarm()
+            sleep(3000)
+            controller.owenPrDevice.offSoundAlarm()
+            controller.owenPrDevice.onArnPower()
+            sleep(1000)
+            controller.owenPrDevice.onViuPower()
+            sleep(1000)
+            if (!controller.owenPrDevice.isViuPowerOn()) {
+                cause = CauseDescriptor.VIU_CONTACTOR_NOT_WORKING
             }
         }
 
@@ -72,15 +48,13 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
 
         if (isTestRunning && model.isManualVoltageRegulation.value) {
             view.appendMessageToLog(LogTag.MESSAGE, "Запуск АРН в режиме ручного регулирования напряжения")
+            view.appendMessageToLog(LogTag.MESSAGE, "АРН: ${(model.testObject.value.objectVoltage.toFloat() * if (isUsingAccurate) 7.3f else 1f) / controller.ktrSettable}")
             controller.latrDevice.startManual(
                 (model.testObject.value.objectVoltage.toFloat() * if (isUsingAccurate) 7.3f else 1f) / controller.ktrSettable
             )
 
             val manualTimer = CallbackTimer(tickPeriod = 1.seconds, tickTimes = MANUAL_TICK_COUNT, tickJob = {
                 if (!isTestRunning) {
-                    it.stop()
-                }
-                if (controller.owenPrDevice.isTimerStartPressed()) {
                     it.stop()
                 }
             }, onFinishJob = {
@@ -142,9 +116,6 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
         if (isTestRunning) {
             val timer =
                 CallbackTimer(tickPeriod = 1.seconds, tickTimes = model.testObject.value.objectTime.toInt(),
-                    onStartJob = {
-                        controller.owenPrDevice.onTimer()
-                    },
                     tickJob = {
                         if (isTestRunning) {
                             controller.tableValues[0].testTime.value = it.getCurrentTicks().toString()
@@ -153,12 +124,11 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                             it.stop()
                         }
                     })
-
-            while (timer.isRunning && !controller.owenPrDevice.isTimerStopPressed()) {
+            while (timer.isRunning) {
                 checkProtections()
             }
         }
-        controller.owenPrDevice.offTimer()
+
         if (cause != CauseDescriptor.CANCELED) {
             markChannel()
             cause = when {
@@ -173,12 +143,11 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun checkProtections() {
-        if (controller.owenPrDevice.isTotalAmperageProtectionTriggered()) {
-            cause = CauseDescriptor.AMPERAGE_PROTECTION_TRIGG
+        if (controller.owenPrDevice.isKa1Triggered()) {
+            cause = CauseDescriptor.KA1_TRIGGERED
         }
-        if (controller.owenPrDevice.isGeneralAmmeterRelayTriggered()) {
-            controller.owenPrDevice.offButtonPostPower()
-            cause = CauseDescriptor.GENERAL_AMMETER_RELAY
+        if (controller.owenPrDevice.isKa2Triggered()) {
+            cause = CauseDescriptor.KA2_TRIGGERED
         }
         if (!isDevicesResponding()) {
             cause = CauseDescriptor.DEVICES_NOT_RESPONDING
@@ -186,22 +155,13 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
         if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
-        if (!controller.owenPrDevice.isBathDoorClosed()) {
-            cause = CauseDescriptor.BATH_DOOR_NOT_CLOSED
-        }
-        if (!controller.owenPrDevice.isHiSwitchTurned()) {
-            cause = CauseDescriptor.HI_POWER_SWITCH_LOCKED
-        }
-        if (controller.owenPrDevice.isStopPressed()) {
-            cause = CauseDescriptor.CANCELED
-        }
         if (controller.isLatrInErrorMode()) {
             cause = CauseDescriptor.LATR_CONTROLLER_ERROR
         }
     }
 
     private fun markChannel() {
-        if (controller.owenPrDevice.isBathChannelTriggered1() ||
+        if (
             controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() ||
             cause != CauseDescriptor.EMPTY
         ) {

@@ -8,7 +8,7 @@ import org.jetbrains.exposed.dao.IntIdTable
 object Protocols : IntIdTable() {
     val date = varchar("date", 128)
     val time = varchar("time", 128)
-    val factoryNumber = varchar("factoryNumber", 64)
+    val factoryNumber = varchar("factoryNumber", 64).nullable()
     val objectName = varchar("objectName", 256)
     val specifiedU = varchar("specifiedU", 64)
     val specifiedI = varchar("specifiedI", 64)
@@ -24,7 +24,7 @@ object Protocols : IntIdTable() {
     val experimentTime1 = varchar("experimentTime1", 64).nullable()
     val experimentTime2 = varchar("experimentTime2", 64).nullable()
     val experimentTime3 = varchar("experimentTime3", 64).nullable()
-    val tester = varchar("tester", 256)
+    val tester = varchar("tester", 256).nullable()
     val result = varchar("result", 64)
     val result0 = varchar("result0", 64).nullable()
     val result1 = varchar("result1", 64).nullable()

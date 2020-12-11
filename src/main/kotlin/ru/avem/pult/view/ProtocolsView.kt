@@ -162,8 +162,8 @@ class ProtocolsView : View("Протоколы") {
                     promptText = "Фильтр"
                     textProperty().onChange { text ->
                         tableProtocols.items = mainModel.protocols.filtered {
-                            it.factoryNumber.contains(text!!) ||
-                                    it.objectName.contains(text) ||
+                            it.objectName.contains(text!!) ||
+                                    it.factoryNumber?.contains(text) ?: false ||
                                     it.date.contains(text) ||
                                     it.time.contains(text)
                         }

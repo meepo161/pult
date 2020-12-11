@@ -21,8 +21,8 @@ class MainViewModel : ViewModel() {
         val TEST_1 = "Проверка качества изоляции повышенным напряжением промышленной частоты"
         val TEST_2 = "Проверка качества изоляции импульсным напряжением промышленной частоты"
 
-        val TYPE_1_VOLTAGE = 6000
-        val TYPE_2_VOLTAGE = 72000
+        val TYPE_1_VOLTAGE = 72000
+        val TYPE_2_VOLTAGE = 6000
     }
 
     val coefficientsSettingsModel: CoefficientsSettingsViewModel by inject()
@@ -81,11 +81,11 @@ class MainViewModel : ViewModel() {
 
     fun getLatrParameters(): LatrSettingsFragmentModel {
         when {
-            testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
+            testObject.value.objectTransformer == TYPE_2_VOLTAGE.toString() -> {
                 return latrSettingsModel.fragments.getValue(LatrSettingsViewModel.MODULE_1_FRAGMENT).model
             }
 
-            testObject.value.objectTransformer == TYPE_2_VOLTAGE.toString() -> {
+            testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
                 when {
                     testObject.value.objectVoltage.toInt() <= 1000 -> {
                         return latrSettingsModel.fragments.getValue(LatrSettingsViewModel.MODULE2_U1_FRAGMENT).model

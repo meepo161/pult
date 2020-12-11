@@ -36,6 +36,7 @@ import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
 import tornadofx.Controller
 import tornadofx.clear
 import tornadofx.observableList
+import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
 class TestController : Controller() {
@@ -45,6 +46,7 @@ class TestController : Controller() {
     }
 
     private lateinit var fillTableVoltage: (Number) -> Unit
+    private lateinit var fillTableAmperage: (Number) -> Unit
 
     val owenPrDevice = getDeviceById(DeviceID.DD1) as OwenPrController
     val latrDevice = getDeviceById(DeviceID.GV240) as AvemLatrController
@@ -129,7 +131,7 @@ class TestController : Controller() {
         impulseTableValues[0].ktr.value = fillKtrCell()
     }
 
-    private fun fillKtrCell(): String? {
+    private fun fillKtrCell(): String {
         return when {
             model.testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
                 with(model.coefficientsSettingsModel.voltmeterFragments[MODULE_1_FRAGMENT]?.model) {
@@ -142,16 +144,16 @@ class TestController : Controller() {
                 }
 
             }
-            else -> ""
+            else -> "!!!"
         }
     }
 
     fun initTest() {
         thread {
-            chooseAndStartTest()
             clearLog()
             initDevices()
             initGeneralDevices()
+            chooseAndStartTest()
         }
     }
 
@@ -162,6 +164,27 @@ class TestController : Controller() {
     private fun initGeneralDevices() {
         setVoltmeterKTR(model.testObject.value.objectTransformer)
         //todo КТР Амперметра
+        when (model.test.value) {
+            TEST_1 -> {
+                fillTableVoltage = { value ->
+                    tableValues[0].measuredVoltage.value = value.toDouble().autoformat()
+                }
+                fillTableAmperage = { value ->
+                    tableValues[0].measuredAmperage.value = value.toDouble().autoformat()
+                }
+            }
+            TEST_2 -> {
+                fillTableVoltage = { value ->
+                    impulseTableValues[0].measuredVoltage.value = value.toDouble().autoformat()
+                }
+                fillTableAmperage = { value ->
+                    impulseTableValues[0].measuredAmperage.value = value.toDouble().autoformat()
+                }
+            }
+            else -> {
+            }
+        }
+        CommunicationModel.startPoll(DeviceID.PA11, Avem7Model.AMPERAGE, fillTableAmperage)
         CommunicationModel.startPoll(DeviceID.PV21, Avem4Model.RMS_VOLTAGE, fillTableVoltage)
         initLatr()
     }
@@ -199,14 +222,6 @@ class TestController : Controller() {
 
     private fun initDevices() {
         initOwenPR()
-
-        fillTableVoltage = { value ->
-            tableValues[0].measuredVoltage.value = value.toDouble().autoformat()
-        }
-
-        CommunicationModel.startPoll(DeviceID.PA11, Avem7Model.AMPERAGE) { value ->
-            tableValues[0].measuredAmperage.value = value.toDouble().autoformat()
-        }
     }
 
     private fun setVoltmeterKTR(transformer: String) {
@@ -283,16 +298,14 @@ class TestController : Controller() {
     }
 
     fun disassembleType1Scheme() {
-        owenPrDevice.offTransformer200V()
+        owenPrDevice.offViuPower()
+        owenPrDevice.offArnPower()
         owenPrDevice.offSoundAlarm()
-        owenPrDevice.offShortlocker20kV()
-        owenPrDevice.offButtonPostPower()
     }
 
     fun disassembleType2Scheme() {
-        owenPrDevice.offTransformer20kV()
+        owenPrDevice.offImpulsePower()
+        owenPrDevice.offArnPower()
         owenPrDevice.offSoundAlarm()
-        owenPrDevice.offShortlocker20kV()
-        owenPrDevice.offButtonPostPower()
     }
 }

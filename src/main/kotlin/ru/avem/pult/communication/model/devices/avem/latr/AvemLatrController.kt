@@ -158,7 +158,7 @@ class AvemLatrController(
 
     fun startManual(voltage: Float) {
         reset()
-        writeRegister(getRegisterById(AvemLatrModel.IR_DUTY_MAX_PERCENT), 90f)
+        writeRegister(getRegisterById(AvemLatrModel.IR_DUTY_MAX_PERCENT), 70f)
         writeRegister(getRegisterById(AvemLatrModel.IR_MAX_VOLTAGE_KEYS), voltage)
         writeRegister(getRegisterById(AvemLatrModel.IR_MODE), 0x0303)
     }

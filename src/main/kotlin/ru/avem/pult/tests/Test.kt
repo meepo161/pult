@@ -12,6 +12,8 @@ import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.MainViewModel
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
 import tornadofx.*
@@ -30,6 +32,8 @@ abstract class Test(
     enum class CauseDescriptor(val description: String) {
         CONTROL_UNIT_NOT_RESPOND("БСУ не отвечает"),
         AMPERAGE_PROTECTION_TRIGG("Изделие было пробито. Сработала токовая защита"),
+        KA1_TRIGGERED("Сработала токовая защита до АРН"),
+        KA2_TRIGGERED("Сработала токовая защита после АРН"),
         AMPERAGE_OVERLOAD("Ток превысил заданный"),
         LATR_CONTROLLER_ERROR("Ошибка контроллера АРН"),
         CANCELED("Испытание отменено оператором"),
@@ -43,6 +47,8 @@ abstract class Test(
         SHORTLOCKER_NOT_WORKING_20KV("Короткозамыкатель 20кВ не сработал"),
         TEST_CONTACTOR_NOT_WORKING_200V("Контактор испытания $TYPE_1_VOLTAGE В не замкнулся"),
         TEST_CONTACTOR_NOT_WORKING_20KV("Контактор испытания $TYPE_2_VOLTAGE В не замкнулся"),
+        VIU_CONTACTOR_NOT_WORKING("Контактор КМ3 не замкнулся"),
+        IMPULSE_CONTACTOR_NOT_WORKING("Контактор КМ2 не замкнулся"),
         GENERAL_AMMETER_RELAY("Сработало реле амперметра общего тока утечки"),
         OPERATOR_IS_IDLE("Индикатор не зажёгся или оператор не зафиксировал зажигание"),
         BATH_DOOR_NOT_CLOSED("Открыта дверь ванны или не сработал удерживающий замок"),
@@ -94,11 +100,6 @@ abstract class Test(
             } catch (ignored: LatrStuckException) {
                 cause = CauseDescriptor.LATR_STUCK
             }
-            controller.owenPrDevice.offBathChannel1()
-            controller.owenPrDevice.offBathChannel2()
-            controller.owenPrDevice.offBathChannel3()
-            controller.owenPrDevice.offBathChannel4()
-            controller.owenPrDevice.onStepDownTransformer()
             when {
                 model.testObject.value.objectTransformer == TYPE_1_VOLTAGE.toString() -> {
                     view.appendMessageToLog(LogTag.MESSAGE, "Разборка схемы испытания $TYPE_1_VOLTAGE В")
@@ -111,11 +112,10 @@ abstract class Test(
             }
             controller.deinitWritingModules()
             controller.voltmeterDevice.writeRuntimeKTR(1f)
-            controller.owenPrDevice.turnOffLampLess1000()
-            controller.owenPrDevice.turnOffLampMore1000()
             controller.owenPrDevice.offLightSign()
-            controller.owenPrDevice.offTimer()
             when (cause) {
+                CauseDescriptor.KA1_TRIGGERED,
+                CauseDescriptor.KA2_TRIGGERED,
                 CauseDescriptor.AMPERAGE_OVERLOAD,
                 CauseDescriptor.CONTROL_UNIT_NOT_RESPOND,
                 CauseDescriptor.AMPERAGE_PROTECTION_TRIGG,
@@ -128,6 +128,8 @@ abstract class Test(
                 CauseDescriptor.HI_POWER_SWITCH_LOCKED,
                 CauseDescriptor.BUTTON_START_NOT_PRESSED,
                 CauseDescriptor.SHORTLOCKER_NOT_WORKING_20KV,
+                CauseDescriptor.VIU_CONTACTOR_NOT_WORKING,
+                CauseDescriptor.IMPULSE_CONTACTOR_NOT_WORKING,
                 CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_200V,
                 CauseDescriptor.TEST_CONTACTOR_NOT_WORKING_20KV,
                 CauseDescriptor.BATH_DOOR_NOT_CLOSED,
@@ -234,8 +236,16 @@ abstract class Test(
                 objectName = model.testObject.value.objectName
                 specifiedU = controller.tableValues[0].specifiedVoltage.value
                 specifiedI = controller.tableValues[0].specifiedAmperage.value
-                objectU0 = controller.tableValues[0].measuredVoltage.value
-                objectI0 = controller.tableValues[0].measuredAmperage.value
+                when (model.test.value) {
+                    TEST_1 -> {
+                        objectU0 = controller.tableValues[0].measuredVoltage.value
+                        objectI0 = controller.tableValues[0].measuredAmperage.value
+                    }
+                    TEST_2 -> {
+                        objectU0 = controller.impulseTableValues[0].measuredVoltage.value
+                        objectI0 = controller.impulseTableValues[0].measuredAmperage.value
+                    }
+                }
                 experimentTime0 = controller.tableValues[0].testTime.value
                 result0 = controller.tableValues[0].result.value
                 result = when (cause) {
@@ -249,117 +259,10 @@ abstract class Test(
                         "Провал"
                     }
                 }
-                tester = model.user.value.fullName
+                tester = model.user.value?.fullName ?: ""
             }
         }
         view.appendMessageToLog(LogTag.MESSAGE, "Протокол сохранён")
-    }
-
-    fun waitForUserStart() {
-        var conf: Alert? = null
-        runLater {
-            conf = Alert(Alert.AlertType.WARNING).apply {
-                title = "Запуск"
-                headerText = "Переведите рубильник <Видимый разрыв> в рабочее положение или нажмите СТОП для отмены"
-                contentText =
-                    "Если реакции от оператора не последует в течение 15 секунд, то испытание автоматически отменится"
-                dialogPane.style {
-                    fontSize = 16.px
-                }
-                dialogPane.lookupButton(ButtonType.OK).isVisible = false
-                show()
-            }
-        }
-
-        val hiSwitchTimer = CallbackTimer(tickPeriod = 0.1.seconds, tickTimes = 150, onStartJob = {
-            view.appendMessageToLog(
-                LogTag.MESSAGE,
-                "Переведите рубильник <Видимый разрыв> в рабочее положение или нажмите СТОП для отмены"
-            )
-        }, tickJob = {
-            if (!isTestRunning) {
-                runLater {
-                    conf!!.close()
-                }
-                it.stop()
-            }
-            if (controller.owenPrDevice.isHiSwitchTurned()) {
-                runLater {
-                    conf!!.close()
-                }
-                it.stop()
-            }
-            if (controller.owenPrDevice.isStopPressed()) {
-                runLater {
-                    conf!!.close()
-                }
-                cause = CauseDescriptor.CANCELED
-                it.stop()
-            }
-        }, onFinishJob = {
-            runLater {
-                conf!!.close()
-            }
-            cause = CauseDescriptor.HI_POWER_SWITCH_TIMEOUT
-        })
-
-        while (hiSwitchTimer.isRunning) {
-            sleep(500)
-        }
-
-        if (isTestRunning) {
-            controller.owenPrDevice.resetTriggers()
-            controller.owenPrDevice.onButtonPostPower()
-            view.appendMessageToLog(
-                LogTag.MESSAGE,
-                "Нажмите кнопку ПУСК на кнопочном посте для старта испытания, или СТОП для отмены"
-            )
-
-            runLater {
-                conf = Alert(Alert.AlertType.WARNING).apply {
-                    title = "Запуск"
-                    headerText =
-                        "Нажмите кнопку ПУСК на кнопочном посте для старта испытания, или СТОП для отмены"
-                    contentText =
-                        "Если реакции от оператора не последует в течение 15 секунд, то испытание автоматически отменится"
-                    dialogPane.style {
-                        fontSize = 16.px
-                    }
-                    dialogPane.lookupButton(ButtonType.OK).isVisible = false
-                    show()
-                }
-            }
-            val startButtonTimer = CallbackTimer(tickPeriod = 0.1.seconds, tickTimes = 150, tickJob = {
-                if (!isTestRunning) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    it.stop()
-                }
-                if (controller.owenPrDevice.isLatrContactorSwitched()) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    it.stop()
-                }
-                if (controller.owenPrDevice.isStopPressed()) {
-                    runLater {
-                        conf!!.close()
-                    }
-                    cause = CauseDescriptor.CANCELED
-                    it.stop()
-                }
-            }, onFinishJob = {
-                runLater {
-                    conf!!.close()
-                }
-                cause = CauseDescriptor.BUTTON_START_NOT_PRESSED
-            })
-
-            while (startButtonTimer.isRunning) {
-                sleep(500)
-            }
-        }
     }
 
     abstract fun getNotRespondingMessageFromTest(): String

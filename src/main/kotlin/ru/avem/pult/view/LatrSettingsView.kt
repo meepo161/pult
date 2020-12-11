@@ -91,15 +91,15 @@ class LatrSettingsView : View("Настройки АРН") {
             side = Side.LEFT
             tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
 
-            tab("$TYPE_1_VOLTAGE В") {
+            tab("$TYPE_2_VOLTAGE В") {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
-                    tab("U ≤ ${TYPE_1_VOLTAGE}В") {
+                    tab("U ≤ ${TYPE_2_VOLTAGE}В") {
                         content = model.fragments.getValue(MODULE_1_FRAGMENT).root
                     }
                 }
             }
-            tab("$TYPE_2_VOLTAGE В") {
+            tab("$TYPE_1_VOLTAGE В") {
                 tabpane {
                     tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                     tab("U ≤ 1кВ") {
