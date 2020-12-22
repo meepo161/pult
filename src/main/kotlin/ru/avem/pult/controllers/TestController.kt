@@ -36,7 +36,6 @@ import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
 import tornadofx.Controller
 import tornadofx.clear
 import tornadofx.observableList
-import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
 class TestController : Controller() {
@@ -171,7 +170,7 @@ class TestController : Controller() {
                     tableValues[0].measuredVoltage.value = value.toDouble().autoformat()
                 }
                 fillTableAmperage = { value ->
-                    tableValues[0].measuredAmperage.value = value.toDouble().autoformat()
+                    tableValues[0].measuredAmperage.value = (value.toDouble() * 10).autoformat()
                 }
             }
             TEST_2 -> {
@@ -179,7 +178,7 @@ class TestController : Controller() {
                     impulseTableValues[0].measuredVoltage.value = value.toDouble().autoformat()
                 }
                 fillTableAmperage = { value ->
-                    impulseTableValues[0].measuredAmperage.value = value.toDouble().autoformat()
+                    impulseTableValues[0].measuredAmperage.value = (value.toDouble() * 10).autoformat()
                 }
             }
             else -> {
@@ -191,6 +190,7 @@ class TestController : Controller() {
     }
 
     private fun initOwenPR() {
+        owenPrDevice.offProtectionsLamp()
         owenPrDevice.presetGeneralProtectionsMasks()
         CommunicationModel.addWritingRegister(DeviceID.DD1, OwenPrModel.CMD, 1.toShort())
         owenPrDevice.resetTriggers()
@@ -198,10 +198,11 @@ class TestController : Controller() {
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_RAW, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_TRIG, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_TRIG_INV, {})
+        CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_17_32_RAW, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_01_F) { amperage ->
             impulseTableValues[0].dat1.value = amperage.toString()
         }
-        CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_02_F) { amperage ->
+        CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_03_F) { amperage ->
             impulseTableValues[0].dat2.value = amperage.toString()
         }
     }
@@ -301,12 +302,15 @@ class TestController : Controller() {
     fun disassembleType1Scheme() {
         owenPrDevice.offViuPower()
         owenPrDevice.offArnPower()
+        owenPrDevice.offViuShortlocker()
         owenPrDevice.offSoundAlarm()
     }
 
     fun disassembleType2Scheme() {
         owenPrDevice.offImpulsePower()
         owenPrDevice.offArnPower()
+        owenPrDevice.offImpulsePlate()
+        owenPrDevice.offImpulseShortlocker()
         owenPrDevice.offSoundAlarm()
     }
 }

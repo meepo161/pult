@@ -23,6 +23,9 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
         if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
+        if (controller.owenPrDevice.isSectionDoorOpened()) {
+            cause = CauseDescriptor.SECTION_DOOR_WAS_OPENED
+        }
         if (controller.owenPrDevice.isKa1Triggered()) {
             cause = CauseDescriptor.KA1_TRIGGERED
         }
@@ -31,17 +34,20 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
         }
 
         if (isTestRunning && isDevicesResponding()) {
-            controller.owenPrDevice.onLightSign()
-            controller.owenPrDevice.onSoundAlarm()
-            sleep(3000)
-            controller.owenPrDevice.offSoundAlarm()
+//            controller.owenPrDevice.onSoundAlarm()
+//            sleep(3000)
+//            controller.owenPrDevice.offSoundAlarm()
+            controller.owenPrDevice.onImpulseShortlocker()
+            sleep(1000)
+            controller.owenPrDevice.onImpulsePlate()
+            sleep(1000)
             controller.owenPrDevice.onArnPower()
             sleep(1000)
             controller.owenPrDevice.onImpulsePower()
             sleep(1000)
-            if (!controller.owenPrDevice.isImpulsePowerOn()) {
-                cause = CauseDescriptor.IMPULSE_CONTACTOR_NOT_WORKING
-            }
+//            if (!controller.owenPrDevice.isImpulsePowerOn()) {
+//                cause = CauseDescriptor.IMPULSE_CONTACTOR_NOT_WORKING
+//            }
         }
 
         checkProtections()
@@ -155,6 +161,9 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
         if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
         }
+        if (controller.owenPrDevice.isSectionDoorOpened()) {
+            cause = CauseDescriptor.SECTION_DOOR_WAS_OPENED
+        }
         if (controller.isLatrInErrorMode()) {
             cause = CauseDescriptor.LATR_CONTROLLER_ERROR
         }
@@ -162,7 +171,7 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
 
     private fun markChannel() {
         if (
-            controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() ||
+            controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() / 10 ||
             cause != CauseDescriptor.EMPTY
         ) {
             controller.tableValues[0].result.value = "Провал"
@@ -172,7 +181,7 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
     }
 
     private fun isChannelBad(): Boolean {
-        return controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat()
+        return controller.ammeterDevice.getRegisterById(Avem7Model.AMPERAGE).value.toFloat() >= model.testObject.value.objectAmperage.toFloat() / 10
     }
 
     private fun isDevicesResponding() =

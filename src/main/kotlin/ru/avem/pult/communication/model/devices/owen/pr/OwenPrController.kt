@@ -30,6 +30,7 @@ class OwenPrController(
     override val pollingMutex = Any()
 
     var outMask: Short = 0
+    var outMaskPRM: Short = 0
 
     companion object {
         const val TRIG_RESETER: Short = 0xFFFF.toShort()
@@ -130,6 +131,18 @@ class OwenPrController(
         writeRegister(register, outMask)
     }
 
+    private fun onBitInRegisterPRM(register: DeviceRegister, bitPosition: Short) {
+        val nor = bitPosition - 1
+        outMaskPRM = outMaskPRM or 2.0.pow(nor).toInt().toShort()
+        writeRegister(register, outMaskPRM)
+    }
+
+    private fun offBitInRegisterPRM(register: DeviceRegister, bitPosition: Short) {
+        val nor = bitPosition - 1
+        outMaskPRM = outMaskPRM and 2.0.pow(nor).toInt().inv().toShort()
+        writeRegister(register, outMaskPRM)
+    }
+
     fun resetTriggers() {
         with(getRegisterById(OwenPrModel.DI_01_16_RST)) {
             writeRegister(this, TRIG_RESETER)
@@ -147,46 +160,28 @@ class OwenPrController(
 
     fun presetGeneralProtectionsMasks() {
         with(getRegisterById(OwenPrModel.DI_01_16_ERROR_MASK_1)) {
-            writeRegister(this, 96.toShort())
+            writeRegister(this, 112.toShort())
+        }
+        with(getRegisterById(OwenPrModel.DI_17_32_ERROR_S1_MASK_1)) {
+            writeRegister(this, 1.toShort())
         }
         with(getRegisterById(OwenPrModel.DO_01_16_ERROR_S1_MASK_0)) {
-            writeRegister(this, 30.toShort())
+            writeRegister(this, 158.toShort())
+        }
+        with(getRegisterById(OwenPrModel.DO_17_32_ERROR_S1_MASK_0)) {
+            writeRegister(this, 3.toShort())
         }
     }
 
-    fun onSoundAlarm() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            onBitInRegister(this, 6)
+    fun onLampPower() {
+        with(getRegisterById(OwenPrModel.LAMP_CONTROL)) {
+            onBitInRegister(this, 1)
         }
     }
 
-    fun offSoundAlarm() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            offBitInRegister(this, 6)
-        }
-    }
-
-    fun onLightSign() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            onBitInRegister(this, 8)
-        }
-    }
-
-    fun offLightSign() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            offBitInRegister(this, 8)
-        }
-    }
-
-    fun onImpulsePcbPower() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            onBitInRegister(this, 2)
-        }
-    }
-
-    fun offImpulsePcbPower() {
-        with(getRegisterById(OwenPrModel.DO_01_16)) {
-            offBitInRegister(this, 2)
+    fun offLampPower() {
+        with(getRegisterById(OwenPrModel.LAMP_CONTROL)) {
+            offBitInRegister(this, 1)
         }
     }
 
@@ -226,6 +221,18 @@ class OwenPrController(
         }
     }
 
+    fun onSoundAlarm() {
+        with(getRegisterById(OwenPrModel.DO_01_16)) {
+            onBitInRegister(this, 6)
+        }
+    }
+
+    fun offSoundAlarm() {
+        with(getRegisterById(OwenPrModel.DO_01_16)) {
+            offBitInRegister(this, 6)
+        }
+    }
+
     fun onProtectionsLamp() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
             onBitInRegister(this, 7)
@@ -235,6 +242,48 @@ class OwenPrController(
     fun offProtectionsLamp() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
             offBitInRegister(this, 7)
+        }
+    }
+
+    fun onImpulseShortlocker() {
+        with(getRegisterById(OwenPrModel.DO_01_16)) {
+            onBitInRegister(this, 8)
+        }
+    }
+
+    fun offImpulseShortlocker() {
+        with(getRegisterById(OwenPrModel.DO_01_16)) {
+            offBitInRegister(this, 8)
+        }
+    }
+
+    fun onViuShortlocker() {
+        with(getRegisterById(OwenPrModel.DO_17_32)) {
+            onBitInRegister(this, 1)
+        }
+    }
+
+    fun offViuShortlocker() {
+        with(getRegisterById(OwenPrModel.DO_17_32)) {
+            offBitInRegister(this, 1)
+        }
+    }
+
+    fun onImpulsePlate() {
+        with(getRegisterById(OwenPrModel.DO_17_32)) {
+            onBitInRegisterPRM(this, 2)
+        }
+    }
+
+    fun offImpulsePlate() {
+        with(getRegisterById(OwenPrModel.DO_17_32)) {
+            offBitInRegisterPRM(this, 2)
+        }
+    }
+
+    fun isSectionDoorOpened(): Boolean {
+        with(getRegisterById(OwenPrModel.DI_17_32_RAW)) {
+            return value.toInt().getRange(0).toBoolean()
         }
     }
 
