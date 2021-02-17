@@ -39,6 +39,7 @@ abstract class Test(
         CANCELED("Испытание отменено оператором"),
         DEVICES_NOT_RESPONDING("Устройства не отвечают"),
         DOOR_WAS_OPENED("Была открыта дверь зоны"),
+        SECTION_DOOR_WAS_OPENED("Была открыта дверь секции"),
         LATR_STUCK("АРН застрял. Обратитесь к производителю."),
         MANUAL_MODE_TIMEOUT("Превышено допустимое время испытаний в ручном режиме"),
         HI_POWER_SWITCH_LOCKED("Рубильник <Видимый разрыв замкнут>"),
@@ -92,6 +93,7 @@ abstract class Test(
 
     private fun finalizeTest() {
         thread {
+            view.buttonStartTimer.isDisable = true
             controller.deinitPollingModules()
             try {
                 view.setTestStatusColor(TestStateColors.WAIT)
@@ -112,7 +114,6 @@ abstract class Test(
             }
             controller.deinitWritingModules()
             controller.voltmeterDevice.writeRuntimeKTR(1f)
-            controller.owenPrDevice.offLightSign()
             when (cause) {
                 CauseDescriptor.KA1_TRIGGERED,
                 CauseDescriptor.KA2_TRIGGERED,
@@ -122,6 +123,7 @@ abstract class Test(
                 CauseDescriptor.LATR_CONTROLLER_ERROR,
                 CauseDescriptor.DEVICES_NOT_RESPONDING,
                 CauseDescriptor.DOOR_WAS_OPENED,
+                CauseDescriptor.SECTION_DOOR_WAS_OPENED,
                 CauseDescriptor.MANUAL_MODE_TIMEOUT,
                 CauseDescriptor.LATR_STUCK,
                 CauseDescriptor.HI_POWER_SWITCH_TIMEOUT,
@@ -149,6 +151,7 @@ abstract class Test(
                     )
                     view.setTestStatusColor(TestStateColors.ERROR)
                     controller.tableValues[0].result.value = "Провал"
+                    controller.owenPrDevice.onProtectionsLamp()
                 }
                 CauseDescriptor.CANCELED -> {
                     runLater {

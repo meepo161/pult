@@ -11,12 +11,15 @@ import javafx.scene.text.FontWeight
 import javafx.stage.Modality
 import org.slf4j.LoggerFactory
 import ru.avem.pult.communication.model.CommunicationModel
+import ru.avem.pult.communication.model.devices.owen.pr.OwenPrController
 import ru.avem.pult.database.entities.TestObject
 import ru.avem.pult.database.entities.User
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.MainViewModel
+import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import tornadofx.*
 import tornadofx.controlsfx.confirmNotification
+import tornadofx.controlsfx.warningNotification
 import kotlin.system.exitProcess
 
 class MainView : View("Лаборатория испытательная высоковольтная стационарная") {
@@ -35,7 +38,17 @@ class MainView : View("Лаборатория испытательная выс�
     override fun onDock() {
         errorValidationCtx.validate(false)
         warningValidatorCtx.validate(false)
-        currentWindow?.setOnCloseRequest { }
+        currentWindow?.setOnCloseRequest {
+            if (model.isLampOn.value) {
+                warningNotification(
+                    "Внимание!",
+                    "Выключите лампу перед выходом из программы!",
+                    Pos.CENTER,
+                    hideAfter = 10.seconds
+                )
+                it.consume()
+            }
+        }
     }
 
     override val root = borderpane {
@@ -212,6 +225,26 @@ class MainView : View("Лаборатория испытательная выс�
                         }
                     }
                 }
+                togglebutton("ВКЛ ЛАМПУ") {
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.LIGHTBULB_ALT).apply {
+                        glyphSize = 29
+                    }
+                    isSelected = false
+
+                    action {
+                        with(CommunicationModel.getDeviceById(CommunicationModel.DeviceID.DD1) as OwenPrController) {
+                            if (isSelected) {
+                                onLampPower()
+                                this@MainView.model.isLampOn.value = true
+                                text = "ВЫКЛ ЛАМПУ"
+                            } else {
+                                this@MainView.model.isLampOn.value = false
+                                offLampPower()
+                                text = "ВКЛ ЛАМПУ"
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -329,6 +362,14 @@ class MainView : View("Лаборатория испытательная выс�
                         }
 
                         action {
+                            if (model.test.value == TEST_2 && !model.isLampOn.value) {
+                                warningNotification(
+                                    "Внимание",
+                                    "Для проведения импульсных испытаний требуется включить питание лампы",
+                                    Pos.BOTTOM_CENTER
+                                )
+                                return@action
+                            }
                             val causes = CommunicationModel.checkDevices()
                             if (causes.isEmpty()) {
                                 replaceWith<TestView>()

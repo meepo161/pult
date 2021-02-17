@@ -5,6 +5,7 @@ import ru.avem.pult.communication.model.IDeviceModel
 
 class OwenPrModel : IDeviceModel {
     companion object {
+        const val LAMP_CONTROL = "LAMP_CONTROL"
         const val DI_01_16_TRIG = "DI_01_16_TRIG"
         const val DI_01_16_TRIG_INV = "DI_01_16_TRIG_INV"
         const val DI_01_16_RAW = "DI_01_16_RAW"
@@ -18,6 +19,7 @@ class OwenPrModel : IDeviceModel {
         const val DO_01_16_ERROR_S3_MASK_0 = "DO_01_16_ERROR_S3_MASK_0"
         const val DO_01_16_ERROR_S4_MASK_1 = "DO_01_16_ERROR_S4_MASK_1"
         const val DO_01_16_ERROR_S4_MASK_0 = "DO_01_16_ERROR_S4_MASK_0"
+        const val DO_17_32 = "DO_17_32"
         const val DI_17_32_TRIG = "DI_17_32_TRIG"
         const val DI_17_32_TRIG_INV = "DI_17_32_TRIG_INV"
         const val DI_17_32_RAW = "DI_17_32_RAW"
@@ -26,6 +28,7 @@ class OwenPrModel : IDeviceModel {
         const val DI_01_16_ERROR_MASK_0 = "DI_01_16_ERROR_S1_MASK_0"
         const val DI_17_32_ERROR_S1_MASK_1 = "DI_17_32_ERROR_S1_MASK_1"
         const val DI_17_32_ERROR_S1_MASK_0 = "DI_17_32_ERROR_S1_MASK_0"
+        const val DO_17_32_ERROR_S1_MASK_0 = "DO_17_32_ERROR_S1_MASK_0"
         const val DO_ERROR_S1_TIME = "DO_ERROR_S1_TIME"
         const val DO_ERROR_S2_TIME = "DO_ERROR_S2_TIME"
         const val DO_ERROR_S3_TIME = "DO_ERROR_S3_TIME"
@@ -40,6 +43,7 @@ class OwenPrModel : IDeviceModel {
     }
 
     override val registers: Map<String, DeviceRegister> = mapOf(
+        LAMP_CONTROL to DeviceRegister(514, DeviceRegister.RegisterValueType.SHORT),
         DI_01_16_RAW to DeviceRegister(516, DeviceRegister.RegisterValueType.SHORT),
         DI_01_16_RST to DeviceRegister(517, DeviceRegister.RegisterValueType.SHORT),
         DI_01_16_TRIG to DeviceRegister(518, DeviceRegister.RegisterValueType.SHORT),
@@ -49,6 +53,7 @@ class OwenPrModel : IDeviceModel {
         DI_17_32_RAW to DeviceRegister(520, DeviceRegister.RegisterValueType.SHORT),
         DI_17_32_RST to DeviceRegister(521, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16 to DeviceRegister(512, DeviceRegister.RegisterValueType.SHORT),
+        DO_17_32 to DeviceRegister(513, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16_ERROR_S1_MASK_1 to DeviceRegister(553, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16_ERROR_S1_MASK_0 to DeviceRegister(554, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16_ERROR_S2_MASK_1 to DeviceRegister(558, DeviceRegister.RegisterValueType.SHORT),
@@ -57,6 +62,7 @@ class OwenPrModel : IDeviceModel {
         DO_01_16_ERROR_S3_MASK_0 to DeviceRegister(564, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16_ERROR_S4_MASK_1 to DeviceRegister(568, DeviceRegister.RegisterValueType.SHORT),
         DO_01_16_ERROR_S4_MASK_0 to DeviceRegister(569, DeviceRegister.RegisterValueType.SHORT),
+        DO_17_32_ERROR_S1_MASK_0 to DeviceRegister(556, DeviceRegister.RegisterValueType.SHORT),
         DI_01_16_ERROR_MASK_1 to DeviceRegister(547, DeviceRegister.RegisterValueType.SHORT),
         DI_01_16_ERROR_MASK_0 to DeviceRegister(548, DeviceRegister.RegisterValueType.SHORT),
         DI_17_32_ERROR_S1_MASK_1 to DeviceRegister(549, DeviceRegister.RegisterValueType.SHORT),

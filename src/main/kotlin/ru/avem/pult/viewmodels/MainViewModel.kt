@@ -66,6 +66,7 @@ class MainViewModel : ViewModel() {
     val testObject = SimpleObjectProperty<TestObject>()
     val user = SimpleObjectProperty<User>()
     val isManualVoltageRegulation = SimpleBooleanProperty()
+    val isLampOn = SimpleBooleanProperty()
 
     fun performActionByAdmin(performAction: () -> Unit) {
         if (authorizedUser.value.login == "admin") {
