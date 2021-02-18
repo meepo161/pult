@@ -7,20 +7,21 @@ import ru.avem.pult.communication.model.CommunicationModel
 import ru.avem.pult.database.connectToDB
 import ru.avem.pult.database.repairDB
 import ru.avem.pult.view.AuthenticationView
+import ru.avem.pult.view.MainView
 import ru.avem.pult.view.Styles
 import tornadofx.App
 import tornadofx.FX
 
-class MainApp : App(AuthenticationView::class, Styles::class) {
+class MainApp : App(MainView::class, Styles::class) {
     companion object {
         var isAppRunning = true
     }
 
     override fun init() {
         connectToDB()
-        if (parameters.unnamed.contains("--init")) {
+//        if (parameters.unnamed.contains("--init")) {
             repairDB()
-        }
+//        } //TODO
     }
 
     override fun start(stage: Stage) {
@@ -30,7 +31,7 @@ class MainApp : App(AuthenticationView::class, Styles::class) {
         FX.primaryStage.fullScreenExitKeyCombination = KeyCombination.NO_MATCH
         FX.primaryStage.fullScreenExitHint = null
         if (!parameters.unnamed.contains("--windowed")) {
-            FX.primaryStage.isFullScreen = true
+            FX.primaryStage.isFullScreen = true //TODO
         }
     }
 

@@ -46,6 +46,12 @@ class TestView : View() {
     var logBuffer: String? = null
 
     override fun onDock() {
+        labelExperimentName.text = if (mainViewModel.isManualVoltageRegulation.value) {
+            "Ручной режим. ${mainViewModel.test.value}"
+        } else {
+            "Автоматический режим. ${mainViewModel.test.value}"
+        }
+
         when (mainViewModel.test.value) {
             TEST_1 -> {
                 tableview(controller.tableValues) {
@@ -96,7 +102,6 @@ class TestView : View() {
             )
         }
 
-        title = mainViewModel.test.value
         setExperimentProgress(0)
         controller.clearTable()
         controller.clearLog()
@@ -104,6 +109,7 @@ class TestView : View() {
         currentWindow?.setOnCloseRequest {
             it.consume()
         }
+        super.onDock()
     }
 
     fun setExperimentProgress(currentTime: Int, time: Int = 1) {
@@ -121,7 +127,7 @@ class TestView : View() {
     private val topSide = anchorpane {
         prefWidth = 1366.0
         prefHeight = 768.0
-        labelExperimentName = label(mainViewModel.test) {
+        labelExperimentName = label() {
             anchorpaneConstraints {
                 leftAnchor = 0.0
                 rightAnchor = 0.0
@@ -130,7 +136,7 @@ class TestView : View() {
             alignment = Pos.CENTER
         }.addClass(Styles.testHeaderLabels)
 
-        vbox(spacing = 16.0) {
+        vbox(spacing = 64.0) {
             anchorpaneConstraints {
                 leftAnchor = 16.0
                 rightAnchor = 16.0
@@ -141,7 +147,7 @@ class TestView : View() {
                 //Пустой контейнер, сюда попадет таблица из onDock()
             }
 
-            hbox(spacing = 130.0) {
+            hbox(spacing = 32.0) {
                 anchorpaneConstraints {
                     leftAnchor = 0.0
                     rightAnchor = 16.0
@@ -152,61 +158,55 @@ class TestView : View() {
 
                 buttonBack = button("Назад") {
                     graphic = OctIconView(OctIcon.ARROW_LEFT).apply {
-                        glyphSize = 35.0
+                        glyphSize = 60.0
                     }
-                    prefWidth = 200.0
-
-                    scaleX = 1.5
-                    scaleY = 1.5
-
+                    prefWidth = 400.0
+                    prefHeight = 120.0
                     onAction = EventHandler {
                         replaceWith<MainView>()
                     }
-                }
+                }.addClass(Styles.superHard)
 
                 buttonTestStart = button("Запуск") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.PLAY).apply {
-                        glyphSize = 35.0
+                        glyphSize = 60.0
                         fill = c("green")
                     }
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
+                    prefWidth = 400.0
+                    prefHeight = 120.0
                     action {
                         isDisable = true
                         controller.initTest()
                     }
-                }
+                }.addClass(Styles.superHard)
 
-                buttonTestStop = button("Остановить") {
+                buttonTestStop = button("Стоп") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.STOP).apply {
-                        glyphSize = 35.0
+                        glyphSize = 60.0
                         fill = c("red")
                     }
                     isDisable = true
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
+                    prefWidth = 400.0
+                    prefHeight = 120.0
                     action {
                         isDisable = true
                         controller.stopTest()
                     }
-                }
+                }.addClass(Styles.superHard)
 
-                buttonStartTimer = button("Старт таймера") {
+                buttonStartTimer = button("Таймер") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.CLOCK_ALT).apply {
-                        glyphSize = 35.0
+                        glyphSize = 60.0
                         fill = c("#039dfc")
                     }
-                    prefWidth = 200.0
-                    scaleX = 1.5
-                    scaleY = 1.5
+                    prefWidth = 400.0
+                    prefHeight = 120.0
                     isDisable = true
                     action {
                         isDisable = true
                         controller.isTimerStart = true
                     }
-                }.removeWhen(mainViewModel.isManualVoltageRegulation.not())
+                }.removeWhen(mainViewModel.isManualVoltageRegulation.not()).addClass(Styles.superHard)
             }
         }
     }

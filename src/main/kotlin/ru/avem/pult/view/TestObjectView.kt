@@ -47,7 +47,7 @@ class TestObjectView : View("Объекты испытания") {
             anchorpaneConstraints {
                 leftAnchor = 16.0
                 rightAnchor = 16.0
-                topAnchor = 64.0
+                topAnchor = 128.0
                 bottomAnchor = 16.0
             }
 
@@ -61,14 +61,18 @@ class TestObjectView : View("Объекты испытания") {
                 callKeyBoard()
             }
             column("Наименование", TestObject::objectName)
-            column("Устанавливаемое напряжение, В", TestObject::objectVoltage) {
+            column("Напряжение, В", TestObject::objectVoltage) {
                 setOnEditCommit { cell ->
-                    val value = cell.newValue.toInt()
+                    var value = -1
+                    try {
+                        value = cell.newValue.toInt()
+                    } catch (e: Exception) {
+                    }
                     when (selectedItem!!.objectTransformer) {
                         TYPE_1_VOLTAGE.toString() -> {
                             if ((0..TYPE_1_VOLTAGE).contains(value)) {
                                 transaction {
-                                    TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
+                                    TestObjects.update({ TestObjects.id eq selectedItem!!.id }) {
                                         it[objectVoltage] = cell.newValue
                                     }
                                 }
@@ -86,7 +90,7 @@ class TestObjectView : View("Объекты испытания") {
                         TYPE_2_VOLTAGE.toString() -> {
                             if ((0..TYPE_2_VOLTAGE).contains(value)) {
                                 transaction {
-                                    TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
+                                    TestObjects.update({ TestObjects.id eq selectedItem!!.id }) {
                                         it[objectVoltage] = cell.newValue
                                     }
                                 }
@@ -107,11 +111,11 @@ class TestObjectView : View("Объекты испытания") {
             column("Ток утечки, мА", TestObject::objectAmperage) {
                 onEditCommit = EventHandler { cell ->
                     try {
-                        val value = cell.newValue.toFloat()
-                        if ((0.0..10.0).contains(value)) {
+                        val value = cell.newValue.replace(",", ".").toFloat()
+                        if ((0.0..9999.0).contains(value)) {
                             transaction {
-                                TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
-                                    it[objectAmperage] = cell.newValue
+                                TestObjects.update({ TestObjects.id eq selectedItem!!.id }) {
+                                    it[objectAmperage] = cell.newValue.replace(",", ".")
                                 }
                             }
                         } else {
@@ -123,7 +127,7 @@ class TestObjectView : View("Объекты испытания") {
                         }
                         warningNotification(
                             "Внимание",
-                            "Введите корректное значение. Ток утечки должен быть в диапазоне 0 - 10 мА",
+                            "Введите корректное значение. Ток утечки должен быть в диапазоне 0 - 9999 мА",
                             Pos.BOTTOM_CENTER
                         )
                     }
@@ -133,9 +137,9 @@ class TestObjectView : View("Объекты испытания") {
                 onEditCommit = EventHandler { cell ->
                     try {
                         val value = cell.newValue.toInt()
-                        if ((0..360).contains(value)) {
+                        if ((0..9999).contains(value)) {
                             transaction {
-                                TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
+                                TestObjects.update({ TestObjects.id eq selectedItem!!.id }) {
                                     it[objectTime] = cell.newValue
                                 }
                             }
@@ -148,7 +152,7 @@ class TestObjectView : View("Объекты испытания") {
                         }
                         warningNotification(
                             "Внимание",
-                            "Введите корректное значение. Время должно быть в диапазоне 0 - 360 с.",
+                            "Введите корректное значение. Время должно быть в диапазоне 0 - 9999 с.",
                             Pos.BOTTOM_CENTER
                         )
                     }
@@ -158,7 +162,7 @@ class TestObjectView : View("Объекты испытания") {
                 onEditCommit = EventHandler { cell ->
                     if (cell.newValue != null) {
                         transaction {
-                            TestObjects.update({ TestObjects.objectName eq selectedItem!!.objectName }) {
+                            TestObjects.update({ TestObjects.id eq selectedItem!!.id }) {
                                 it[objectTest] = cell.newValue
                             }
                         }
@@ -183,7 +187,7 @@ class TestObjectView : View("Объекты испытания") {
 
             button("Назад") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_LEFT).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     currentWindow?.onCloseRequest?.handle(WindowEvent(currentWindow, EventType.ROOT))
@@ -192,7 +196,7 @@ class TestObjectView : View("Объекты испытания") {
 
             button("Создать объект испытания") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     find<AddTestObjectView>().openModal(resizable = false)
@@ -201,7 +205,7 @@ class TestObjectView : View("Объекты испытания") {
 
             button("Удалить") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     confirm(
@@ -220,6 +224,6 @@ class TestObjectView : View("Объекты испытания") {
                     }
                 }
             }.removeWhen(objectsTable.selectionModel.selectedItemProperty().isNull)
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
     }
 }

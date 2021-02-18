@@ -30,35 +30,41 @@ object Protocols : IntIdTable() {
     val result1 = varchar("result1", 64).nullable()
     val result2 = varchar("result2", 64).nullable()
     val result3 = varchar("result3", 64).nullable()
+
+    val graphU = varchar("graphU", 999999999)
+    val graphI = varchar("graphI", 999999999)
 }
 
 class Protocol(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Protocol>(Protocols)
 
-    var date by Protocols.date
-    var time by Protocols.time
-    var factoryNumber by Protocols.factoryNumber
-    var objectName by Protocols.objectName
-    var specifiedU by Protocols.specifiedU
-    var specifiedI by Protocols.specifiedI
-    var objectU0 by Protocols.objectU0
-    var objectI0 by Protocols.objectI0
-    var objectU1 by Protocols.objectU1
-    var objectI1 by Protocols.objectI1
-    var objectU2 by Protocols.objectU2
-    var objectI2 by Protocols.objectI2
-    var objectU3 by Protocols.objectU3
-    var objectI3 by Protocols.objectI3
-    var experimentTime0 by Protocols.experimentTime0
-    var experimentTime1 by Protocols.experimentTime1
-    var experimentTime2 by Protocols.experimentTime2
-    var experimentTime3 by Protocols.experimentTime3
-    var tester by Protocols.tester
-    var result by Protocols.result
-    var result0 by Protocols.result0
-    var result1 by Protocols.result1
-    var result2 by Protocols.result2
-    var result3 by Protocols.result3
+    var date                        by Protocols.date
+    var time                        by Protocols.time
+    var factoryNumber               by Protocols.factoryNumber
+    var objectName                  by Protocols.objectName
+    var specifiedU                  by Protocols.specifiedU
+    var specifiedI                  by Protocols.specifiedI
+    var objectU0                    by Protocols.objectU0
+    var objectI0                    by Protocols.objectI0
+    var objectU1                    by Protocols.objectU1
+    var objectI1                    by Protocols.objectI1
+    var objectU2                    by Protocols.objectU2
+    var objectI2                    by Protocols.objectI2
+    var objectU3                    by Protocols.objectU3
+    var objectI3                    by Protocols.objectI3
+    var experimentTime0             by Protocols.experimentTime0
+    var experimentTime1             by Protocols.experimentTime1
+    var experimentTime2             by Protocols.experimentTime2
+    var experimentTime3             by Protocols.experimentTime3
+    var tester                      by Protocols.tester
+    var result                      by Protocols.result
+    var result0                     by Protocols.result0
+    var result1                     by Protocols.result1
+    var result2                     by Protocols.result2
+    var result3                     by Protocols.result3
+
+    var graphU                      by Protocols.graphU
+    var graphI                      by Protocols.graphI
 
     override fun toString(): String {
         return "$id. $factoryNumber:$objectName - $date Результат: $result"

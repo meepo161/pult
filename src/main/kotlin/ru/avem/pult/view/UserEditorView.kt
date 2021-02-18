@@ -37,7 +37,7 @@ class UserEditorView : View("Редактор пользователей") {
                 leftAnchor = 16.0
                 rightAnchor = 16.0
                 bottomAnchor = 16.0
-                topAnchor = 64.0
+                topAnchor = 128.0
             }
 
             columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
@@ -82,7 +82,7 @@ class UserEditorView : View("Редактор пользователей") {
 
             button("Назад") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_LEFT).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     currentWindow?.onCloseRequest?.handle(WindowEvent(currentWindow, EventType.ROOT))
@@ -91,7 +91,7 @@ class UserEditorView : View("Редактор пользователей") {
 
             button("Добавить пользователя") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     find<UserAddView>().openModal(resizable = false)
@@ -100,7 +100,7 @@ class UserEditorView : View("Редактор пользователей") {
 
             button("Удалить") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     confirm(
@@ -118,5 +118,5 @@ class UserEditorView : View("Редактор пользователей") {
                 }
             }.removeWhen(tableviewUsers.selectionModel.selectedItemProperty().isNull)
         }
-    }.addClass(Styles.regularLabels)
+    }.addClass(Styles.hard)
 }

@@ -18,8 +18,8 @@ class MainViewModel : ViewModel() {
     override val configPath: Path = Paths.get("conf/.properties")
 
     companion object {
-        val TEST_1 = "Проверка качества изоляции повышенным напряжением промышленной частоты"
-        val TEST_2 = "Проверка качества изоляции импульсным напряжением промышленной частоты"
+        val TEST_1 = "Повышенным напряжением"
+        val TEST_2 = "Импульсным напряжением"
 
         val TYPE_1_VOLTAGE = 72000
         val TYPE_2_VOLTAGE = 6000
@@ -69,15 +69,15 @@ class MainViewModel : ViewModel() {
     val isLampOn = SimpleBooleanProperty()
 
     fun performActionByAdmin(performAction: () -> Unit) {
-        if (authorizedUser.value.login == "admin") {
+//        if (authorizedUser.value.login == "admin") {
             performAction()
-        } else {
-            warningNotification(
-                "Внимание!",
-                "Эта операция разрешена только администратору.",
-                Pos.BOTTOM_CENTER
-            )
-        }
+//        } else {
+//            warningNotification(
+//                "Внимание!",
+//                "Эта операция разрешена только администратору.",
+//                Pos.BOTTOM_CENTER
+//            )
+//        }
     }
 
     fun getLatrParameters(): LatrSettingsFragmentModel {

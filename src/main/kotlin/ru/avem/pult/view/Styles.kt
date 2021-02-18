@@ -11,6 +11,8 @@ class Styles : Stylesheet() {
         val headerLabels by cssclass()
         val testHeaderLabels by cssclass()
         val anchorPaneBorders by cssclass()
+        val hard by cssclass()
+        val superHard by cssclass()
         val anchorPaneStatusColor by cssclass()
         val roundButton by cssclass()
         val powerButtons by cssclass()
@@ -34,8 +36,18 @@ class Styles : Stylesheet() {
         }
 
         tableRowCell {
+            cellSize = 50.px
             text {
-                fontSize = 20.px
+                fontSize = 36.px
+                fontWeight = FontWeight.BOLD
+            }
+        }
+
+        tableColumn {
+            alignment = Pos.CENTER
+            fontWeight = FontWeight.BOLD
+            text {
+                fontSize = 30.px
             }
         }
 
@@ -49,6 +61,24 @@ class Styles : Stylesheet() {
 
         headerLabels {
             fontSize = 16.px
+        }
+
+        hard {
+            fontSize = 40.px
+            fontWeight = FontWeight.BOLD
+            text {
+                fontSize = 40.px
+                fontWeight = FontWeight.BOLD
+            }
+        }
+
+        superHard {
+            fontSize = 64.px
+            fontWeight = FontWeight.BOLD
+            text {
+                fontSize = 64.px
+                fontWeight = FontWeight.BOLD
+            }
         }
 
         testHeaderLabels {
@@ -78,16 +108,6 @@ class Styles : Stylesheet() {
                 left = 30.px,
                 right = 30.px
             )
-        }
-
-        tableColumn {
-            alignment = Pos.CENTER
-            fontWeight = FontWeight.EXTRA_BOLD
-            fontSize = 16.px
-        }
-
-        tableRowCell {
-            cellSize = 50.px
         }
 
         checkBox {

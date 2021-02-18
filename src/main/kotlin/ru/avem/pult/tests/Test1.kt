@@ -18,6 +18,10 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
     override fun start() {
         super.start()
         isTestRunning = true
+
+        listOfValuesU.clear()
+        listOfValuesI.clear()
+
         switchExperimentButtonsState()
 
         if (controller.owenPrDevice.isDoorOpened()) {
@@ -110,7 +114,7 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                         controller.latrDevice.minusVoltage()
                         sleep(200)
                     }
-                }
+                } //TODO мб просто несколько раз проверить
             }
 
             controller.latrDevice.stop()
@@ -123,6 +127,8 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                         if (isTestRunning) {
                             controller.tableValues[0].testTime.value = it.getCurrentTicks().toString()
                             view.setExperimentProgress(it.getCurrentTicks(), model.testObject.value.objectTime.toInt())
+                            listOfValuesU.add(String.format("%.2f", controller.tableValues[0].measuredVoltage.value))
+                            listOfValuesI.add(String.format("%.2f", controller.tableValues[0].measuredAmperage.value))
                         } else {
                             it.stop()
                         }

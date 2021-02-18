@@ -44,11 +44,11 @@ class LatrSettingsView : View("Настройки АРН") {
 
     override val root = vbox(spacing = 8.0) {
         hbox(spacing = 32) {
-            paddingTop = 8.0
-            paddingLeft = 8.0
+            paddingTop = 32.0
+            paddingLeft = 32.0
             button("Назад") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_LEFT).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     currentWindow?.onCloseRequest?.handle(WindowEvent(currentWindow, EventType.ROOT))
@@ -57,7 +57,7 @@ class LatrSettingsView : View("Настройки АРН") {
 
             button("Сохранить") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.SAVE).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     if (model.isDataValid) {
@@ -83,7 +83,7 @@ class LatrSettingsView : View("Настройки АРН") {
                     }
                 }
             }
-        }
+        }.addClass(Styles.hard)
         tabpane {
             vboxConstraints {
                 vGrow = Priority.ALWAYS
@@ -131,7 +131,7 @@ class LatrSettingsView : View("Настройки АРН") {
                     }
                 }
             }
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
     }
 
     class FormFragment : Fragment() {

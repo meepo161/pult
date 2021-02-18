@@ -2,17 +2,19 @@ package ru.avem.pult.view
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.avem.pult.database.entities.TestObject
 import ru.avem.pult.utils.callKeyBoard
-import ru.avem.pult.viewmodels.TestObjectAddViewModel
 import ru.avem.pult.viewmodels.MainViewModel
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
+import ru.avem.pult.viewmodels.TestObjectAddViewModel
 import tornadofx.*
+import tornadofx.controlsfx.warningNotification
 
 class AddTestObjectView : View("Создание ОИ") {
     private var experiments: ComboBox<String> by singleAssign()
@@ -36,7 +38,7 @@ class AddTestObjectView : View("Создание ОИ") {
         fieldset("Заполните поля") {
             field("Испытание:") {
                 experiments = combobox {
-                    useMaxWidth = true
+                    prefWidth = 800.0
                     items = mainViewModel.testList
                     validationCtx.addValidator(this, property = model.test) {
                         if (it.isNullOrBlank()) error("Обязательное поле") else null
@@ -51,7 +53,7 @@ class AddTestObjectView : View("Создание ОИ") {
                     filterInput {
                         it.controlNewText.length <= 255
                     }
-                    prefWidth = 300.0
+                    prefWidth = 800.0
                     validationCtx.addValidator(this) {
                         if (it.isNullOrBlank()) {
                             error("Обязательное поле")
@@ -60,10 +62,10 @@ class AddTestObjectView : View("Создание ОИ") {
                     bind(model.name)
                 }
             }
-            field("Устанавливаемое напряжение, В:") {
+            field("Напряжение, В:") {
                 textfield {
                     callKeyBoard()
-                    prefWidth = 300.0
+                    prefWidth = 800.0
                     filterInput {
                         it.controlNewText.length <= 6 && it.controlNewText.isInt()
                     }
@@ -99,11 +101,7 @@ class AddTestObjectView : View("Создание ОИ") {
             field("Ток утечки, мА:") {
                 textfield {
                     callKeyBoard()
-                    filterInput {
-                        it.controlNewText.length <= 6 && it.controlNewText.isDouble()
-                    }
                     prefWidth = 300.0
-                    stripNonNumeric(allowedChars = arrayOf("."))
                     bind(model.amperage)
                 }
             }
@@ -113,7 +111,7 @@ class AddTestObjectView : View("Создание ОИ") {
                     filterInput {
                         it.controlNewText.length <= 3
                     }
-                    prefWidth = 300.0
+                    prefWidth = 800.0
                     stripNonNumeric(allowedChars = emptyArray())
                     bind(model.time)
                 }
@@ -122,63 +120,82 @@ class AddTestObjectView : View("Создание ОИ") {
             buttonbar {
                 button("Добавить") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS).apply {
-                        glyphSize = 18
+                        glyphSize = 60
                     }
                     action {
-                        transaction {
-                            TestObject.new {
-                                objectName = model.name.value
-                                objectVoltage = model.voltage.value.toString()
-                                objectAmperage = model.amperage.value.toString()
-                                objectTime = model.time.value.toString()
-                                objectTransformer = when (model.test.value) {
-                                    TEST_1 -> {
-                                        TYPE_1_VOLTAGE.toString()
+                        try {
+
+                            transaction {
+                                TestObject.new {
+                                    objectName = model.name.value
+                                    objectVoltage = model.voltage.value.toString()
+                                    objectAmperage = model.amperage.value.toString().replace(",", ".")
+                                    objectTime = model.time.value.toString()
+                                    objectTransformer = when (model.test.value) {
+                                        TEST_1 -> {
+                                            TYPE_1_VOLTAGE.toString()
+                                        }
+                                        TEST_2 -> {
+                                            TYPE_2_VOLTAGE.toString()
+                                        }
+                                        else -> {
+                                            TYPE_1_VOLTAGE.toString()
+                                        }
                                     }
-                                    TEST_2 -> {
-                                        TYPE_2_VOLTAGE.toString()
-                                    }
-                                    else -> {
-                                        TYPE_1_VOLTAGE.toString()
-                                    }
+                                    objectTest = model.test.value
                                 }
-                                objectTest = model.test.value
                             }
+                            parentView.objectsTable.items = mainViewModel.testObjectsList
+                        } catch (e: Exception) {
+                            warningNotification(
+                                title = "Ошибка",
+                                text = "Проверьте введенные данные",
+                                position = Pos.CENTER,
+                                hideAfter = 3.seconds
+                            )
                         }
-                        parentView.objectsTable.items = mainViewModel.testObjectsList
                     }
-                }
+                }.addClass(Styles.hard)
 
                 button("Добавить и закрыть") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS_CIRCLE).apply {
-                        glyphSize = 18
+                        glyphSize = 60
                     }
                     action {
-                        transaction {
-                            TestObject.new {
-                                objectName = model.name.value
-                                objectAmperage = model.amperage.value.toString()
-                                objectTime = model.time.value.toString()
-                                objectTransformer = when (model.test.value) {
-                                    TEST_1 -> {
-                                        TYPE_1_VOLTAGE.toString()
+                        try {
+                            transaction {
+                                TestObject.new {
+                                    objectName = model.name.value
+                                    objectAmperage = model.amperage.value.toString().replace(",", ".")
+                                    objectTime = model.time.value.toString()
+                                    objectTransformer = when (model.test.value) {
+                                        TEST_1 -> {
+                                            TYPE_1_VOLTAGE.toString()
+                                        }
+                                        TEST_2 -> {
+                                            TYPE_2_VOLTAGE.toString()
+                                        }
+                                        else -> {
+                                            TYPE_1_VOLTAGE.toString()
+                                        }
                                     }
-                                    TEST_2 -> {
-                                        TYPE_2_VOLTAGE.toString()
-                                    }
-                                    else -> {
-                                        TYPE_1_VOLTAGE.toString()
-                                    }
+                                    objectVoltage = model.voltage.value.toString()
+                                    objectTest = model.test.value
                                 }
-                                objectVoltage = model.voltage.value.toString()
-                                objectTest = model.test.value
                             }
+                            parentView.objectsTable.items = mainViewModel.testObjectsList
+                        } catch (e: Exception) {
+                            warningNotification(
+                                title = "Ошибка",
+                                text = "Проверьте введенные данные",
+                                position = Pos.CENTER,
+                                hideAfter = 3.seconds
+                            )
                         }
-                        parentView.objectsTable.items = mainViewModel.testObjectsList
                         close()
                     }
-                }
+                }.addClass(Styles.hard)
             }.visibleWhen(validationCtx.valid)
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
     }
 }

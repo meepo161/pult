@@ -57,7 +57,7 @@ class ProtocolsView : View("Протоколы") {
             }
             button("Назад") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.ARROW_LEFT).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     currentWindow?.onCloseRequest?.handle(WindowEvent(currentWindow, EventType.ROOT))
@@ -65,7 +65,7 @@ class ProtocolsView : View("Протоколы") {
             }
             button("Открыть") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     saveProtocolAsWorkbook(selectedProtocol.value)
@@ -74,7 +74,7 @@ class ProtocolsView : View("Протоколы") {
             }.removeWhen(selectedProtocol.isNull)
             button("Сохранить как…") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.SAVE).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     val files = chooseFile(
@@ -98,7 +98,7 @@ class ProtocolsView : View("Протоколы") {
             }.removeWhen(selectedProtocol.isNull)
             button("Сохранить все") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.SAVE).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 action {
                     if (mainModel.protocols.size > 0) {
@@ -124,7 +124,7 @@ class ProtocolsView : View("Протоколы") {
             }
             button("Удалить") {
                 graphic = FontAwesomeIconView(FontAwesomeIcon.TRASH).apply {
-                    glyphSize = 18
+                    glyphSize = 60
                 }
                 removeWhen(selectedProtocol.isNull)
                 action {
@@ -157,7 +157,8 @@ class ProtocolsView : View("Протоколы") {
 
                 textfield {
                     callKeyBoard()
-                    maxWidth = 200.0
+                    maxWidth = 700.0
+                    alignment = Pos.CENTER
 
                     promptText = "Фильтр"
                     textProperty().onChange { text ->
@@ -170,13 +171,13 @@ class ProtocolsView : View("Протоколы") {
                     }
                 }
             }
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
 
         tableProtocols = tableview(mainModel.protocols) {
             anchorpaneConstraints {
                 leftAnchor = 16.0
                 rightAnchor = 16.0
-                topAnchor = 64.0
+                topAnchor = 128.0
                 bottomAnchor = 16.0
             }
             columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY

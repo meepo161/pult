@@ -78,7 +78,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                km1State = circle(radius = 8) {
+                km1State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -86,7 +86,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                km2State = circle(radius = 8) {
+                km2State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -94,7 +94,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                km3State = circle(radius = 8) {
+                km3State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -102,7 +102,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                doorState = circle(radius = 8) {
+                doorState = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -110,7 +110,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                ka1State = circle(radius = 8) {
+                ka1State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -118,7 +118,7 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                ka2State = circle(radius = 8) {
+                ka2State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -126,12 +126,12 @@ class InputsStatesView : View("Состояние входов БСУ") {
             }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                km5State = circle(radius = 8) {
+                km5State = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
                 label("Контроль КМ5")
             }
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
     }
 }

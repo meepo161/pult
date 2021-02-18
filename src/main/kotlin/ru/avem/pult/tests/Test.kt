@@ -1,13 +1,10 @@
 package ru.avem.pult.tests
 
 import javafx.geometry.Pos
-import javafx.scene.control.Alert
-import javafx.scene.control.ButtonType
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.avem.pult.communication.model.devices.LatrStuckException
 import ru.avem.pult.controllers.TestController
 import ru.avem.pult.database.entities.Protocol
-import ru.avem.pult.utils.CallbackTimer
 import ru.avem.pult.utils.LogTag
 import ru.avem.pult.utils.TestStateColors
 import ru.avem.pult.view.TestView
@@ -16,11 +13,11 @@ import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_1
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_1_VOLTAGE
 import ru.avem.pult.viewmodels.MainViewModel.Companion.TYPE_2_VOLTAGE
-import tornadofx.*
 import tornadofx.controlsfx.confirmNotification
 import tornadofx.controlsfx.errorNotification
 import tornadofx.controlsfx.warningNotification
-import java.lang.Thread.sleep
+import tornadofx.runLater
+import tornadofx.seconds
 import java.text.SimpleDateFormat
 import kotlin.concurrent.thread
 
@@ -60,6 +57,9 @@ abstract class Test(
         LIGHT_FIXED(""),
         EMPTY("")
     }
+
+    var listOfValuesU = mutableListOf<String>()
+    var listOfValuesI = mutableListOf<String>()
 
     var cause: CauseDescriptor = CauseDescriptor.EMPTY
         set(value) {
@@ -199,7 +199,11 @@ abstract class Test(
             }
 
             controller.isTimerStart = false
-            saveProtocolToDB(cause)
+
+            if (listOfValuesU.isNotEmpty()) {
+                saveProtocolToDB(cause)
+            }
+
             view.setExperimentProgress(0)
             switchExperimentButtonsState()
         }
@@ -253,6 +257,7 @@ abstract class Test(
                     }
                 }
                 experimentTime0 = controller.tableValues[0].testTime.value
+
                 result0 = controller.tableValues[0].result.value
                 result = when (cause) {
                     CauseDescriptor.SUCCESS, CauseDescriptor.EMPTY, CauseDescriptor.LIGHT_FIXED -> {
@@ -266,6 +271,9 @@ abstract class Test(
                     }
                 }
                 tester = model.user.value?.fullName ?: ""
+
+                graphU = listOfValuesU.toString()
+                graphI = listOfValuesI.toString()
             }
         }
         view.appendMessageToLog(LogTag.MESSAGE, "Протокол сохранён")

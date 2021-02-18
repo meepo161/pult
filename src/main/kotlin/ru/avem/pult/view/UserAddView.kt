@@ -100,5 +100,5 @@ class UserAddView : View("Добавить пользователя") {
                 }
             }
         }.visibleWhen(validationCtx.valid)
-    }.addClass(Styles.regularLabels)
+    }.addClass(Styles.hard)
 }

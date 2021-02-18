@@ -16,7 +16,6 @@ import ru.avem.pult.database.entities.TestObject
 import ru.avem.pult.database.entities.User
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.MainViewModel
-import ru.avem.pult.viewmodels.MainViewModel.Companion.TEST_2
 import tornadofx.*
 import tornadofx.controlsfx.confirmNotification
 import tornadofx.controlsfx.warningNotification
@@ -35,6 +34,9 @@ class MainView : View("Лаборатория испытательная выс�
         }
     }
 
+    private val testView: TestView by inject()
+
+
     override fun onDock() {
         errorValidationCtx.validate(false)
         warningValidatorCtx.validate(false)
@@ -52,8 +54,8 @@ class MainView : View("Лаборатория испытательная выс�
     }
 
     override val root = borderpane {
-        prefWidth = 1366.0
-        prefHeight = 768.0
+        prefWidth = 1920.0
+        prefHeight = 1080.0
 
         top {
             hbox {
@@ -63,19 +65,17 @@ class MainView : View("Лаборатория испытательная выс�
                     }
                     menu("База данных") {
                         graphic = OctIconView(OctIcon.DATABASE).apply {
-                            glyphSize = 30.0
+                            glyphSize = 60.0
                         }
                         item("Объекты испытания") {
                             graphic = OctIconView(OctIcon.GEAR).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
-                                model.performActionByAdmin {
-                                    replaceWith<TestObjectView>(
-                                        centerOnScreen = true
-                                    )
-                                }
+                                replaceWith<TestObjectView>(
+                                    centerOnScreen = true
+                                )
                             }
                         }
 
@@ -83,7 +83,7 @@ class MainView : View("Лаборатория испытательная выс�
 
                         item("Список протоколов") {
                             graphic = OctIconView(OctIcon.FILE_TEXT).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
@@ -97,7 +97,7 @@ class MainView : View("Лаборатория испытательная выс�
 
                         item("Профили") {
                             graphic = OctIconView(OctIcon.ORGANIZATION).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
@@ -111,16 +111,16 @@ class MainView : View("Лаборатория испытательная выс�
                     }
                     menu("Настройки") {
                         graphic = OctIconView(OctIcon.SETTINGS).apply {
-                            glyphSize = 30.0
+                            glyphSize = 60.0
                         }
 
                         menu("Настройки приборов") {
                             graphic = OctIconView(OctIcon.ALERT).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
                             item("Настройки АРН") {
                                 graphic = OctIconView(OctIcon.VERSIONS).apply {
-                                    glyphSize = 30.0
+                                    glyphSize = 60.0
                                 }
                                 action {
                                     model.performActionByAdmin {
@@ -133,22 +133,24 @@ class MainView : View("Лаборатория испытательная выс�
                         }
                         item("Настройки коэффициентов") {
                             graphic = OctIconView(OctIcon.FILE_BINARY).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
                             action {
-                                replaceWith<CoefficientsSettingsView>(
-                                    centerOnScreen = true
-                                )
+                                model.performActionByAdmin {
+                                    replaceWith<CoefficientsSettingsView>(
+                                        centerOnScreen = true
+                                    )
+                                }
                             }
                         }
                     }
                     menu("Инструменты") {
                         graphic = OctIconView(OctIcon.TOOLS).apply {
-                            glyphSize = 30.0
+                            glyphSize = 60.0
                         }
                         item("Состояние устройств") {
                             graphic = OctIconView(OctIcon.CIRCUIT_BOARD).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
@@ -161,7 +163,7 @@ class MainView : View("Лаборатория испытательная выс�
 
                         item("Состояние входов БСУ") {
                             graphic = OctIconView(OctIcon.ISSUE_REOPENED).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
@@ -176,14 +178,14 @@ class MainView : View("Лаборатория испытательная выс�
 
                         item("О программе") {
                             graphic = OctIconView(OctIcon.INFO).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
 
                             action {
                                 confirmNotification(
                                     "О программе",
                                     """Высоковольтная испытательная установка
-                                   |Версия ПО: 1.0.0 от 22.10.2020
+                                   |Версия ПО: 1.0.1 от 18.02.2021
                                    """.trimMargin(),
                                     Pos.CENTER, darkStyle = true
                                 )
@@ -192,12 +194,12 @@ class MainView : View("Лаборатория испытательная выс�
                     }
                     menu("Выход") {
                         graphic = OctIconView(OctIcon.LOG_OUT).apply {
-                            glyphSize = 30.0
+                            glyphSize = 60.0
                         }
 
                         item("На экран аутентификации") {
                             graphic = OctIconView(OctIcon.LOG_OUT).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
                             action {
                                 replaceWith<AuthenticationView>(
@@ -207,7 +209,7 @@ class MainView : View("Лаборатория испытательная выс�
                         }
                         item("Из программы") {
                             graphic = OctIconView(OctIcon.X).apply {
-                                glyphSize = 30.0
+                                glyphSize = 60.0
                             }
                             action {
                                 confirmation(
@@ -227,7 +229,7 @@ class MainView : View("Лаборатория испытательная выс�
                 }
                 togglebutton("ВКЛ ЛАМПУ") {
                     graphic = FontAwesomeIconView(FontAwesomeIcon.LIGHTBULB_ALT).apply {
-                        glyphSize = 29
+                        glyphSize = 60
                     }
                     isSelected = false
 
@@ -245,12 +247,12 @@ class MainView : View("Лаборатория испытательная выс�
                         }
                     }
                 }
-            }
+            }.addClass(Styles.hard)
         }
 
         center {
             anchorpane {
-                vbox(spacing = 20.0) {
+                vbox(spacing = 64.0) {
                     anchorpaneConstraints {
                         leftAnchor = 0.0
                         rightAnchor = 0.0
@@ -259,41 +261,41 @@ class MainView : View("Лаборатория испытательная выс�
                     }
                     alignment = Pos.CENTER
 
-                    vbox(spacing = 16.0) {
+                    vbox(spacing = 32.0) {
                         alignment = Pos.CENTER
 
                         label("Заполните поля") {
                             style {
                                 fontWeight = FontWeight.BOLD
                             }
-                        }.addClass(Styles.headerLabels)
+                        }.addClass(Styles.hard)
 
-                        hbox(spacing = 23.0) {
+                        hbox(spacing = 30.0) {
                             alignment = Pos.CENTER
                             label("Заводской номер") {
                                 graphic = FontAwesomeIconView(FontAwesomeIcon.FILE_TEXT_ALT).apply {
-                                    glyphSize = 18
+                                    glyphSize = 60
                                 }
-                            }.addClass(Styles.regularLabels)
+                            }.addClass(Styles.hard)
 
                             textfield(model.factoryNumber) {
                                 callKeyBoard()
-                                prefWidth = 550.0
+                                prefWidth = 1200.0
                                 warningValidatorCtx.addValidator(this) {
                                     if (it.isNullOrBlank()) error("Если не заполнено, то будет пустым полем в протоколе") else null
                                 }
-                            }.addClass(Styles.regularLabels)
+                            }.addClass(Styles.hard)
                         }
 
-                        hbox(spacing = 37.0) {
+                        hbox(spacing = 62.0) {
                             alignment = Pos.CENTER
                             label("Вид испытания") {
                                 graphic = FontAwesomeIconView(FontAwesomeIcon.AREA_CHART).apply {
-                                    glyphSize = 18.0
+                                    glyphSize = 60
                                 }
                             }
                             combobox<String>(model.test) {
-                                prefWidth = 550.0
+                                prefWidth = 1200.0
                                 items = model.testList
                                 errorValidationCtx.addValidator(
                                     this,
@@ -305,18 +307,18 @@ class MainView : View("Лаборатория испытательная выс�
                                     model.testObject.value = null
                                 }
                             }
-                        }.addClass(Styles.regularLabels)
+                        }.addClass(Styles.hard)
 
-                        hbox(spacing = 12.0) {
+                        hbox(spacing = 0.0) {
                             alignment = Pos.CENTER
 
                             label("Объект испытания") {
                                 graphic = FontAwesomeIconView(FontAwesomeIcon.COGS).apply {
-                                    glyphSize = 18.0
+                                    glyphSize = 60
                                 }
-                            }.addClass(Styles.regularLabels)
+                            }.addClass(Styles.hard)
                             combobox<TestObject>(model.testObject) {
-                                prefWidth = 550.0
+                                prefWidth = 1200.0
                                 errorValidationCtx.addValidator(this, property = model.testObject) {
                                     if (it == null) error("Обязательное поле") else null
                                 }
@@ -326,19 +328,19 @@ class MainView : View("Лаборатория испытательная выс�
                                         it.objectTest == model.test.value && it.objectTest == model.test.value
                                     }.observable()
                                 }
-                            }.addClass(Styles.regularLabels)
-                        }.removeWhen(model.test.isEmpty).addClass(Styles.regularLabels)
+                            }.addClass(Styles.hard)
+                        }.removeWhen(model.test.isEmpty).addClass(Styles.hard)
 
-                        hbox(spacing = 57.0) {
+                        hbox(spacing = 130.0) {
                             alignment = Pos.CENTER
 
-                            label("Контроллёр:") {
+                            label("Контроллёр") {
                                 graphic = FontAwesomeIconView(FontAwesomeIcon.USERS).apply {
-                                    glyphSize = 18.0
+                                    glyphSize = 60
                                 }
                             }
                             combobox<User>(model.user) {
-                                prefWidth = 550.0
+                                prefWidth = 1200.0
                                 setOnShowing {
                                     items = model.usersList
                                 }
@@ -346,39 +348,40 @@ class MainView : View("Лаборатория испытательная выс�
                                     if (it == null) error("Если не заполнено, то будет пустым полем в протоколе") else null
                                 }
                             }
-                        }.addClass(Styles.regularLabels)
+                        }.addClass(Styles.hard)
 
-                        checkbox("Ручная регулировка напряжения").addClass(Styles.regularLabels)
-                            .bind(model.isManualVoltageRegulation)
+                        checkbox("Ручная регулировка напряжения") {
+                        }.addClass(Styles.hard).bind(model.isManualVoltageRegulation)
                     }
 
                     button("Перейти к испытаниям") {
                         isDefaultButton = true
-                        prefWidth = 300.0
+                        prefWidth = 1200.0
+                        prefHeight = 160.0
 
                         graphic = OctIconView(OctIcon.ALERT).apply {
-                            glyphSize = 18.0
+                            glyphSize = 60
                             fill = c("red")
                         }
 
                         action {
-                            if (model.test.value == TEST_2 && !model.isLampOn.value) {
-                                warningNotification(
-                                    "Внимание",
-                                    "Для проведения импульсных испытаний требуется включить питание лампы",
-                                    Pos.BOTTOM_CENTER
-                                )
-                                return@action
-                            }
-                            val causes = CommunicationModel.checkDevices()
-                            if (causes.isEmpty()) {
-                                replaceWith<TestView>()
-                            } else {
-                                showDeviceErrorNotification(causes)
-                            }
+//                            if (model.test.value == TEST_2 && !model.isLampOn.value) {
+//                                warningNotification(
+//                                    "Внимание",
+//                                    "Для проведения импульсных испытаний требуется включить питание лампы",
+//                                    Pos.BOTTOM_CENTER
+//                                )
+//                                return@action
+//                            }
+//                            val causes = CommunicationModel.checkDevices()
+//                            if (causes.isEmpty()) {
+                            replaceWith<TestView>()
+//                            } else {
+//                                showDeviceErrorNotification(causes)
+//                            } TODO
                         }
                         enableWhen(errorValidationCtx::valid)
-                    }.addClass(Styles.regularLabels)
+                    }.addClass(Styles.superHard)
                 }
             }
         }

@@ -7,9 +7,8 @@ import ru.avem.pult.utils.CallbackTimer
 import ru.avem.pult.utils.LogTag
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.MainViewModel
-import tornadofx.*
+import tornadofx.seconds
 import java.lang.Thread.sleep
-import kotlin.system.exitProcess
 
 //"Проверка качества изоляции импульсным напряжением промышленной частоты"
 class Test2(model: MainViewModel, view: TestView, controller: TestController) : Test(model, view, controller) {
@@ -18,6 +17,10 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
     override fun start() {
         super.start()
         isTestRunning = true
+
+        listOfValuesU.clear()
+        listOfValuesI.clear()
+
         switchExperimentButtonsState()
 
         if (controller.owenPrDevice.isDoorOpened()) {
@@ -126,6 +129,8 @@ class Test2(model: MainViewModel, view: TestView, controller: TestController) : 
                         if (isTestRunning) {
                             controller.impulseTableValues[0].testTime.value = it.getCurrentTicks().toString()
                             view.setExperimentProgress(it.getCurrentTicks(), model.testObject.value.objectTime.toInt())
+                            listOfValuesU.add(String.format("%.2f", controller.tableValues[0].measuredVoltage.value))
+                            listOfValuesI.add(String.format("%.2f", controller.tableValues[0].measuredAmperage.value))
                         } else {
                             it.stop()
                         }

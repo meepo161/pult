@@ -5,11 +5,12 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.beans.property.SimpleStringProperty
 import javafx.event.EventHandler
 import javafx.geometry.Pos
+import javafx.util.Duration
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.avem.pult.database.entities.User
-import ru.avem.pult.database.entities.Users
 import ru.avem.pult.database.entities.Users.login
+import ru.avem.pult.database.entities.Users.password
 import ru.avem.pult.utils.callKeyBoard
 import ru.avem.pult.viewmodels.MainViewModel
 import tornadofx.*
@@ -79,7 +80,7 @@ class AuthenticationView : View("Аутентификация") {
                 onAction = EventHandler {
                     transaction {
                         model.authorizedUser.value = User.find {
-                            (login eq loginProperty.value) and (Users.password eq passwordProperty.value)
+                            (login eq loginProperty.value) and (password eq passwordProperty.value)
                         }.firstOrNull()
                         if (model.authorizedUser.value == null) {
                             warningNotification(
@@ -93,8 +94,10 @@ class AuthenticationView : View("Аутентификация") {
                                 Pos.BOTTOM_CENTER,
                                 hideAfter = 3.seconds
                             )
+
                             replaceWith<MainView>(
-                                centerOnScreen = true
+                                centerOnScreen = true,
+                                transition = ViewTransition.Slide(Duration(200.0))
                             )
                         }
                     }

@@ -52,7 +52,7 @@ class DeviceStatesView : View("Состояние устройств") {
 
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                circlePR = circle(radius = 8) {
+                circlePR = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -61,7 +61,7 @@ class DeviceStatesView : View("Состояние устройств") {
 
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                circleLATRController = circle(radius = 8) {
+                circleLATRController = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -70,7 +70,7 @@ class DeviceStatesView : View("Состояние устройств") {
 
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                circleAvemVoltmeter = circle(radius = 8) {
+                circleAvemVoltmeter = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
@@ -79,12 +79,12 @@ class DeviceStatesView : View("Состояние устройств") {
 
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER_LEFT
-                circleAvemAmmeter0 = circle(radius = 8) {
+                circleAvemAmmeter0 = circle(radius = 32) {
                     isSmooth = true
                     stroke = c("black")
                 }
                 label("АВЭМ-7-5000")
             }
-        }.addClass(Styles.regularLabels)
+        }.addClass(Styles.hard)
     }
 }

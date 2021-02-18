@@ -67,10 +67,20 @@ fun TextField.callKeyBoard() {
             .open(Paths.get("C:/Program Files/Common Files/Microsoft Shared/ink/TabTip.exe").toFile())
         requestFocus()
     }
+    onMousePressed = EventHandler {
+        Desktop.getDesktop()
+            .open(Paths.get("C:/Program Files/Common Files/Microsoft Shared/ink/TabTip.exe").toFile())
+        requestFocus()
+    }
 }
 
 fun PasswordField.callKeyBoard() {
     onTouchPressed = EventHandler {
+        Desktop.getDesktop()
+            .open(Paths.get("C:/Program Files/Common Files/Microsoft Shared/ink/TabTip.exe").toFile())
+        requestFocus()
+    }
+    onMousePressed = EventHandler {
         Desktop.getDesktop()
             .open(Paths.get("C:/Program Files/Common Files/Microsoft Shared/ink/TabTip.exe").toFile())
         requestFocus()
