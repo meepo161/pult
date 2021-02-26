@@ -37,15 +37,14 @@ class AuthenticationView : View("Аутентификация") {
             alignment = Pos.CENTER
 
             label("Аутентификация") {
-                style {
-                    fontSize = 25.px
-                }
             }
-            hbox(spacing = 24.0) {
+            hbox(spacing = 38.0) {
                 alignment = Pos.CENTER
 
                 label("Логин") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.GROUP)
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.GROUP).apply {
+                        glyphSize = 60
+                    }
                 }
                 textfield {
                     callKeyBoard()
@@ -54,12 +53,14 @@ class AuthenticationView : View("Аутентификация") {
                         if (it.isNullOrBlank()) error("Обязательное поле") else null
                     }
                 }.bind(loginProperty)
-            }.addClass(Styles.regularLabels)
+            }
             hbox(spacing = 16.0) {
                 alignment = Pos.CENTER
 
                 label("Пароль") {
-                    graphic = FontAwesomeIconView(FontAwesomeIcon.KEY)
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.KEY).apply {
+                        glyphSize = 60
+                    }
                 }
                 passwordfield {
                     callKeyBoard()
@@ -68,7 +69,7 @@ class AuthenticationView : View("Аутентификация") {
                         if (it.isNullOrBlank()) error("Обязательное поле") else null
                     }
                 }.bind(passwordProperty)
-            }.addClass(Styles.regularLabels)
+            }
             button("Вход") {
                 anchorpaneConstraints {
                     leftAnchor = 16.0
@@ -85,14 +86,14 @@ class AuthenticationView : View("Аутентификация") {
                         if (model.authorizedUser.value == null) {
                             warningNotification(
                                 "Неправильный логин или пароль", "Проверьте данные для входа и повторите снова.",
-                                Pos.BOTTOM_CENTER, hideAfter = 3.seconds
+                                Pos.BOTTOM_CENTER, hideAfter = 2.seconds
                             )
                         } else {
                             confirmNotification(
                                 "Авторизация",
                                 "Вы вошли как: ${loginProperty.value}",
                                 Pos.BOTTOM_CENTER,
-                                hideAfter = 3.seconds
+                                hideAfter = 2.seconds
                             )
 
                             replaceWith<MainView>(
@@ -103,7 +104,7 @@ class AuthenticationView : View("Аутентификация") {
                     }
                 }
                 enableWhen(validationCtx.valid)
-            }.addClass(Styles.regularLabels)
+            }
         }
-    }
+    }.addClass(Styles.hard)
 }

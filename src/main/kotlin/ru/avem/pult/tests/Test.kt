@@ -142,7 +142,7 @@ abstract class Test(
                             title = "Ошибка",
                             text = "Испытание не завершено",
                             position = Pos.CENTER,
-                            hideAfter = 3.seconds
+                            hideAfter = 2.seconds
                         )
                     }
                     view.appendMessageToLog(
@@ -159,7 +159,7 @@ abstract class Test(
                             title = "Отменено",
                             text = "Испытание отменено",
                             position = Pos.CENTER,
-                            hideAfter = 3.seconds
+                            hideAfter = 2.seconds
                         )
                     }
                     view.appendMessageToLog(LogTag.ERROR, "Испытание не завершено: ${cause.description}")
@@ -174,7 +174,7 @@ abstract class Test(
                             title = "Предупреждение",
                             text = "Испытание завершено с предупреждениями",
                             position = Pos.CENTER,
-                            hideAfter = 3.seconds
+                            hideAfter = 2.seconds
                         )
                     }
                     view.appendMessageToLog(
@@ -190,7 +190,7 @@ abstract class Test(
                             title = "Успешно",
                             text = "Испытание успешно завершено",
                             position = Pos.CENTER,
-                            hideAfter = 3.seconds
+                            hideAfter = 2.seconds
                         )
                     }
                     view.appendMessageToLog(LogTag.MESSAGE, "Испытание успешно завершено")

@@ -183,8 +183,8 @@ class AvemLatrController(
                 maxDuttyPercent = 35f,
                 corridor = 0.2f,
                 delta = 0.03f,
-                timePulseMin = 100,
-                timePulseMax = 100
+                timePulseMin = 30,
+                timePulseMax = 30
             )
         )
     }

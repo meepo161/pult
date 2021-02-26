@@ -17,12 +17,12 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
 
     override fun start() {
         super.start()
+        switchExperimentButtonsState()
         isTestRunning = true
 
         listOfValuesU.clear()
         listOfValuesI.clear()
 
-        switchExperimentButtonsState()
 
         if (controller.owenPrDevice.isDoorOpened()) {
             cause = CauseDescriptor.DOOR_WAS_OPENED
@@ -84,37 +84,127 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                 )
             }
 
-            while (isTestRunning && isDevicesResponding() &&
-                controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
-                model.testObject.value.objectVoltage.toFloat() * 0.9f
-            ) {
-                view.appendOneMessageToLog(LogTag.MESSAGE, "Грубая регулировка напряжения")
-                checkProtections()
-            }
+            if (model.testObject.value.objectVoltage.toFloat() <= 10000) {
 
-            if (isTestRunning) {
-                controller.latrDevice.presetAccurateParameters()
                 while (isTestRunning && isDevicesResponding() &&
                     controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
-                    model.testObject.value.objectVoltage.toFloat() * 0.97f ||
-                    controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
-                    model.testObject.value.objectVoltage.toFloat() * 1.03f
+                    model.testObject.value.objectVoltage.toFloat() - 4000
                 ) {
+                    view.appendOneMessageToLog(LogTag.MESSAGE, "Грубая регулировка напряжения")
                     checkProtections()
-                    view.appendOneMessageToLog(LogTag.MESSAGE, "Точная регулировка напряжения")
-                    if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
-                        model.testObject.value.objectVoltage.toFloat() * 0.97f
+                }
+
+                if (isTestRunning) {
+                    controller.latrDevice.presetAccurateParameters()
+
+
+                    while (isTestRunning && isDevicesResponding() &&
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                        model.testObject.value.objectVoltage.toFloat() - 2000 ||
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                        model.testObject.value.objectVoltage.toFloat() + 2000
                     ) {
-                        controller.latrDevice.plusVoltage()
-                        sleep(200)
+                        checkProtections()
+                        view.appendOneMessageToLog(LogTag.MESSAGE, "Точная регулировка напряжения")
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                            model.testObject.value.objectVoltage.toFloat() - 2000
+                        ) {
+                            controller.latrDevice.plusVoltage()
+                        }
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                            model.testObject.value.objectVoltage.toFloat() + 2000
+                        ) {
+                            controller.latrDevice.minusVoltage()
+                        }
                     }
-                    if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+
+                    while (isTestRunning && isDevicesResponding() &&
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                        model.testObject.value.objectVoltage.toFloat() * 0.98f ||
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                        model.testObject.value.objectVoltage.toFloat() * 1.02f
+                    ) {
+                        checkProtections()
+                        view.appendOneMessageToLog(LogTag.MESSAGE, "Шаговая регулировка напряжения")
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                            model.testObject.value.objectVoltage.toFloat() * 0.98f
+                        ) {
+                            controller.latrDevice.plusVoltage()
+                            sleep(100)
+                            controller.latrDevice.stop()
+                            sleep(200)
+                        }
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                            model.testObject.value.objectVoltage.toFloat() * 1.02f
+                        ) {
+                            controller.latrDevice.minusVoltage()
+                            sleep(100)
+                            controller.latrDevice.stop()
+                            sleep(200)
+                        }
+                    }
+                }
+            } else {
+
+                while (isTestRunning && isDevicesResponding() &&
+                    controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                    model.testObject.value.objectVoltage.toFloat() - 4000
+                ) {
+                    view.appendOneMessageToLog(LogTag.MESSAGE, "Грубая регулировка напряжения")
+                    checkProtections()
+                }
+
+                if (isTestRunning) {
+                    controller.latrDevice.presetAccurateParameters()
+
+
+                    while (isTestRunning && isDevicesResponding() &&
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                        model.testObject.value.objectVoltage.toFloat() - 1000 ||
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                        model.testObject.value.objectVoltage.toFloat() + 1000
+                    ) {
+                        checkProtections()
+                        view.appendOneMessageToLog(LogTag.MESSAGE, "Точная регулировка напряжения")
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                            model.testObject.value.objectVoltage.toFloat() - 1000
+                        ) {
+                            controller.latrDevice.plusVoltage()
+                        }
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                            model.testObject.value.objectVoltage.toFloat() + 1000
+                        ) {
+                            controller.latrDevice.minusVoltage()
+                        }
+                    }
+
+                    while (isTestRunning && isDevicesResponding() &&
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                        model.testObject.value.objectVoltage.toFloat() ||
+                        controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
                         model.testObject.value.objectVoltage.toFloat() * 1.03f
                     ) {
-                        controller.latrDevice.minusVoltage()
-                        sleep(200)
+                        checkProtections()
+                        view.appendOneMessageToLog(LogTag.MESSAGE, "Шаговая регулировка напряжения")
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() <=
+                            model.testObject.value.objectVoltage.toFloat()
+                        ) {
+                            controller.latrDevice.plusVoltage()
+                            sleep(100)
+                            controller.latrDevice.stop()
+                            sleep(200)
+                        }
+                        if (controller.voltmeterDevice.getRegisterById(Avem4Model.RMS_VOLTAGE).value.toFloat() >=
+                            model.testObject.value.objectVoltage.toFloat() * 1.03f
+                        ) {
+                            controller.latrDevice.minusVoltage()
+                            sleep(100)
+                            controller.latrDevice.stop()
+                            sleep(200)
+                        }
                     }
-                } //TODO мб просто несколько раз проверить
+                }
+
             }
 
             controller.latrDevice.stop()
@@ -127,8 +217,18 @@ class Test1(model: MainViewModel, view: TestView, controller: TestController) : 
                         if (isTestRunning) {
                             controller.tableValues[0].testTime.value = it.getCurrentTicks().toString()
                             view.setExperimentProgress(it.getCurrentTicks(), model.testObject.value.objectTime.toInt())
-                            listOfValuesU.add(String.format("%.2f", controller.tableValues[0].measuredVoltage.value))
-                            listOfValuesI.add(String.format("%.2f", controller.tableValues[0].measuredAmperage.value))
+                            listOfValuesU.add(
+                                String.format(
+                                    "%.2f",
+                                    controller.tableValues[0].measuredVoltage.value.toDouble()
+                                )
+                            )
+                            listOfValuesI.add(
+                                String.format(
+                                    "%.2f",
+                                    controller.tableValues[0].measuredAmperage.value.toDouble()
+                                )
+                            )
                         } else {
                             it.stop()
                         }

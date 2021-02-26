@@ -6,6 +6,7 @@ import de.jensd.fx.glyphs.octicons.OctIcon
 import de.jensd.fx.glyphs.octicons.OctIconView
 import javafx.geometry.Pos
 import javafx.scene.control.ButtonType
+import javafx.scene.control.ComboBox
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontWeight
 import javafx.stage.Modality
@@ -27,6 +28,8 @@ class MainView : View("Лаборатория испытательная выс�
     }
 
     private val model: MainViewModel by inject()
+
+    var comboboxTestObject: ComboBox<TestObject> by singleAssign()
     private val errorValidationCtx = ValidationContext()
     private val warningValidatorCtx = ValidationContext().apply {
         decorationProvider = {
@@ -114,23 +117,23 @@ class MainView : View("Лаборатория испытательная выс�
                             glyphSize = 60.0
                         }
 
-                        menu("Настройки приборов") {
-                            graphic = OctIconView(OctIcon.ALERT).apply {
-                                glyphSize = 60.0
-                            }
-                            item("Настройки АРН") {
-                                graphic = OctIconView(OctIcon.VERSIONS).apply {
-                                    glyphSize = 60.0
-                                }
-                                action {
-                                    model.performActionByAdmin {
-                                        replaceWith<LatrSettingsView>(
-                                            centerOnScreen = true
-                                        )
-                                    }
-                                }
-                            }
-                        }
+//                        menu("Настройки приборов") {
+//                            graphic = OctIconView(OctIcon.ALERT).apply {
+//                                glyphSize = 60.0
+//                            }
+//                            item("Настройки АРН") {
+//                                graphic = OctIconView(OctIcon.VERSIONS).apply {
+//                                    glyphSize = 60.0
+//                                }
+//                                action {
+//                                    model.performActionByAdmin {
+//                                        replaceWith<LatrSettingsView>(
+//                                            centerOnScreen = true
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                        }
                         item("Настройки коэффициентов") {
                             graphic = OctIconView(OctIcon.FILE_BINARY).apply {
                                 glyphSize = 60.0
@@ -197,16 +200,16 @@ class MainView : View("Лаборатория испытательная выс�
                             glyphSize = 60.0
                         }
 
-                        item("На экран аутентификации") {
-                            graphic = OctIconView(OctIcon.LOG_OUT).apply {
-                                glyphSize = 60.0
-                            }
-                            action {
-                                replaceWith<AuthenticationView>(
-                                    centerOnScreen = true
-                                )
-                            }
-                        }
+//                        item("На экран аутентификации") {
+//                            graphic = OctIconView(OctIcon.LOG_OUT).apply {
+//                                glyphSize = 60.0
+//                            }
+//                            action {
+//                                replaceWith<AuthenticationView>(
+//                                    centerOnScreen = true
+//                                )
+//                            }
+//                        }
                         item("Из программы") {
                             graphic = OctIconView(OctIcon.X).apply {
                                 glyphSize = 60.0
@@ -317,7 +320,7 @@ class MainView : View("Лаборатория испытательная выс�
                                     glyphSize = 60
                                 }
                             }.addClass(Styles.hard)
-                            combobox<TestObject>(model.testObject) {
+                            comboboxTestObject = combobox<TestObject>(model.testObject) {
                                 prefWidth = 1200.0
                                 errorValidationCtx.addValidator(this, property = model.testObject) {
                                     if (it == null) error("Обязательное поле") else null

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import ru.avem.pult.communication.model.CommunicationModel
 import ru.avem.pult.communication.model.CommunicationModel.DeviceID
 import ru.avem.pult.communication.model.CommunicationModel.getDeviceById
-import ru.avem.pult.communication.model.devices.LatrStuckException
 import ru.avem.pult.communication.model.devices.avem.avem4.Avem4Controller
 import ru.avem.pult.communication.model.devices.avem.avem4.Avem4Model
 import ru.avem.pult.communication.model.devices.avem.avem7.Avem7Controller
@@ -24,6 +23,7 @@ import ru.avem.pult.tests.Test
 import ru.avem.pult.tests.Test1
 import ru.avem.pult.tests.Test2
 import ru.avem.pult.utils.LogTag
+import ru.avem.pult.utils.formatRealNumber
 import ru.avem.pult.view.TestView
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_1_FRAGMENT
 import ru.avem.pult.viewmodels.CoefficientsSettingsViewModel.Companion.MODULE_2_FRAGMENT
@@ -150,10 +150,48 @@ class TestController : Controller() {
 
     fun initTest() {
         thread {
+            currentTest = when {
+                model.test.value == TEST_1 -> Test1(model, view, this)
+                model.test.value == TEST_2 -> Test2(model, view, this)
+                else -> GeneralTest(model, view, this)
+            }
             clearLog()
-            initDevices()
-            initGeneralDevices()
-            chooseAndStartTest()
+
+            view.appendOneMessageToLog(
+                LogTag.DEBUG,
+                "Инициализация устройств. Дождитесь начала испытания."
+            )
+            val registerDD1 = getDeviceById(DeviceID.DD1)
+                .getRegisterById(OwenPrModel.DI_01_16_RAW)
+            getDeviceById(DeviceID.DD1).readRegister(registerDD1)
+
+            val registerGV240 = getDeviceById(DeviceID.GV240)
+                .getRegisterById(AvemLatrModel.RMS_VOLTAGE)
+            getDeviceById(DeviceID.GV240).readRegister(registerGV240)
+
+            val registerPA11 = getDeviceById(DeviceID.PA11)
+                .getRegisterById(Avem7Model.AMPERAGE)
+            getDeviceById(DeviceID.PA11).readRegister(registerPA11)
+
+            val registerPV21 = getDeviceById(DeviceID.PV21)
+                .getRegisterById(Avem4Model.RMS_VOLTAGE)
+            getDeviceById(DeviceID.PV21).readRegister(registerPV21)
+
+            if (!getDeviceById(DeviceID.DD1).isResponding) {
+                currentTest.cause = Test.CauseDescriptor.CONTROL_UNIT_NOT_RESPOND
+            } else {
+                if (getDeviceById(DeviceID.GV240).isResponding ||
+                    getDeviceById(DeviceID.PA11).isResponding ||
+                    getDeviceById(DeviceID.PV21).isResponding
+                ) {
+                    initDevices()
+                    initGeneralDevices()
+                    chooseAndStartTest()
+                } else {
+                    currentTest.cause = Test.CauseDescriptor.DEVICES_NOT_RESPONDING
+                }
+            }
+
         }
     }
 
@@ -167,18 +205,20 @@ class TestController : Controller() {
         when (model.test.value) {
             TEST_1 -> {
                 fillTableVoltage = { value ->
-                    tableValues[0].measuredVoltage.value = value.toDouble().autoformat()
+                    tableValues[0].measuredVoltage.value = formatRealNumber(value.toDouble()).toString()
                 }
                 fillTableAmperage = { value ->
-                    tableValues[0].measuredAmperage.value = (value.toDouble() * 10).autoformat()
+                    tableValues[0].measuredAmperage.value = formatRealNumber(value.toDouble() / 189).toString()
+                    //todo * 10 убрал
                 }
             }
             TEST_2 -> {
                 fillTableVoltage = { value ->
-                    impulseTableValues[0].measuredVoltage.value = value.toDouble().autoformat()
+                    impulseTableValues[0].measuredVoltage.value = formatRealNumber(value.toDouble()).toString()
                 }
                 fillTableAmperage = { value ->
-                    impulseTableValues[0].measuredAmperage.value = (value.toDouble() * 10).autoformat()
+                    impulseTableValues[0].measuredAmperage.value = formatRealNumber(value.toDouble()).toString()
+                    //todo * 10 убрал
                 }
             }
             else -> {
@@ -200,10 +240,10 @@ class TestController : Controller() {
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_01_16_TRIG_INV, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.DI_17_32_RAW, {})
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_01_F) { amperage ->
-            impulseTableValues[0].dat1.value = amperage.toString()
+            impulseTableValues[0].dat1.value = formatRealNumber(amperage.toDouble() * 100).toString()
         }
         CommunicationModel.startPoll(DeviceID.DD1, OwenPrModel.AI_03_F) { amperage ->
-            impulseTableValues[0].dat2.value = amperage.toString()
+            impulseTableValues[0].dat2.value = formatRealNumber(amperage.toDouble() * 100).toString()
         }
     }
 
@@ -216,7 +256,7 @@ class TestController : Controller() {
                     "В предыдущем испытании АРН не завершил свою работу нормально. АРН возвращается в начало."
                 )
             }
-        } catch (e: LatrStuckException) {
+        } catch (e: Exception) {
             view.appendMessageToLog(LogTag.ERROR, "Ошибка возврата АРН в начало. АРН застрял.")
             currentTest.cause = Test.CauseDescriptor.LATR_STUCK
         }

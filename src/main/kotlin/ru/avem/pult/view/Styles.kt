@@ -12,6 +12,7 @@ class Styles : Stylesheet() {
         val testHeaderLabels by cssclass()
         val anchorPaneBorders by cssclass()
         val hard by cssclass()
+        val medium by cssclass()
         val superHard by cssclass()
         val anchorPaneStatusColor by cssclass()
         val roundButton by cssclass()
@@ -65,6 +66,16 @@ class Styles : Stylesheet() {
 
         hard {
             fontSize = 40.px
+            fontWeight = FontWeight.BOLD
+            text {
+                fontSize = 40.px
+                fontWeight = FontWeight.BOLD
+            }
+        }
+
+
+        medium {
+            fontSize = 20.px
             fontWeight = FontWeight.BOLD
             text {
                 fontSize = 40.px

@@ -171,7 +171,7 @@ class ProtocolsView : View("Протоколы") {
                     }
                 }
             }
-        }.addClass(Styles.hard)
+        }.addClass(Styles.medium)
 
         tableProtocols = tableview(mainModel.protocols) {
             anchorpaneConstraints {

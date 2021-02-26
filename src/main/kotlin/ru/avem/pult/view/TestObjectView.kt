@@ -28,6 +28,7 @@ class TestObjectView : View("Объекты испытания") {
 
     var objectsTable: TableView<TestObject> by singleAssign()
     private val model: MainViewModel by inject()
+    private val mainView: MainView by inject()
 
     override fun onDock() {
         currentWindow?.setOnCloseRequest {
@@ -36,7 +37,7 @@ class TestObjectView : View("Объекты испытания") {
             )
             it.consume()
         }
-
+        mainView.comboboxTestObject.selectionModel.clearSelection()
         objectsTable.items = model.testObjectsList
     }
 
@@ -224,6 +225,21 @@ class TestObjectView : View("Объекты испытания") {
                     }
                 }
             }.removeWhen(objectsTable.selectionModel.selectedItemProperty().isNull)
+            textfield {
+                hboxConstraints {
+                    alignment = Pos.CENTER_RIGHT
+                }
+                callKeyBoard()
+                maxWidth = 700.0
+                alignment = Pos.CENTER
+
+                promptText = "Фильтр"
+                textProperty().onChange { text ->
+                    objectsTable.items = model.testObjectsList.filtered {
+                        it.objectName.contains(text!!)
+                    }
+                }
+            }
         }.addClass(Styles.hard)
     }
 }

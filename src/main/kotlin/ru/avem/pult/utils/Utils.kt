@@ -3,6 +3,8 @@ package ru.avem.pult.utils
 import javafx.event.EventHandler
 import javafx.scene.control.PasswordField
 import javafx.scene.control.TextField
+import javafx.scene.input.MouseEvent
+import javafx.scene.input.TouchEvent
 import java.awt.Desktop
 import java.io.*
 import java.nio.file.Paths

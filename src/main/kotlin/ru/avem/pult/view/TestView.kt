@@ -12,6 +12,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import org.slf4j.LoggerFactory
 import ru.avem.pult.controllers.TestController
@@ -175,6 +176,7 @@ class TestView : View() {
                     prefWidth = 400.0
                     prefHeight = 120.0
                     action {
+                        buttonBack.isDisable = true
                         isDisable = true
                         controller.initTest()
                     }
@@ -281,6 +283,8 @@ class TestView : View() {
                     LogTag.ERROR -> tag.c
                     LogTag.DEBUG -> tag.c
                 }
+            fontSize = 30.px
+            fontWeight = FontWeight.BOLD
         }
 
         Platform.runLater {

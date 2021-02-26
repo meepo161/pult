@@ -199,25 +199,25 @@ class OwenPrController(
 
     fun onImpulsePower() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
-            onBitInRegister(this, 5)
+            onBitInRegister(this, 4)
         }
     }
 
     fun offImpulsePower() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
-            offBitInRegister(this, 5)
+            offBitInRegister(this, 4)
         }
     }
 
     fun onViuPower() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
-            onBitInRegister(this, 4)
+            onBitInRegister(this, 5)
         }
     }
 
     fun offViuPower() {
         with(getRegisterById(OwenPrModel.DO_01_16)) {
-            offBitInRegister(this, 4)
+            offBitInRegister(this, 5)
         }
     }
 

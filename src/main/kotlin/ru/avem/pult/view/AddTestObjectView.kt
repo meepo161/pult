@@ -28,10 +28,10 @@ class AddTestObjectView : View("Создание ОИ") {
 
     override fun onDock() {
         validationCtx.validate()
-        model.amperage.value = .0
+        model.amperage.value = 999.0
         model.test.value = ""
         model.name.value = ""
-        model.time.value = 0
+        model.time.value = 60
     }
 
     override val root = form {
@@ -151,7 +151,7 @@ class AddTestObjectView : View("Создание ОИ") {
                                 title = "Ошибка",
                                 text = "Проверьте введенные данные",
                                 position = Pos.CENTER,
-                                hideAfter = 3.seconds
+                                hideAfter = 2.seconds
                             )
                         }
                     }
@@ -189,7 +189,7 @@ class AddTestObjectView : View("Создание ОИ") {
                                 title = "Ошибка",
                                 text = "Проверьте введенные данные",
                                 position = Pos.CENTER,
-                                hideAfter = 3.seconds
+                                hideAfter = 2.seconds
                             )
                         }
                         close()
